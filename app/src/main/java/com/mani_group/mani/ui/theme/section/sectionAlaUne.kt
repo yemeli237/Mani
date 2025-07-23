@@ -98,12 +98,20 @@ fun bannier(){
     }
 
 
-    LaunchedEffect(Unit) {
-//        url = "https://res.cloudinary.com/dcnnsq1xw/image/upload/v1745581244/4_v368dr.png"
+//    LaunchedEffect(Unit) {
+////        url = "https://res.cloudinary.com/dcnnsq1xw/image/upload/v1745581244/4_v368dr.png"
+//        Firebase.firestore.collection("data")
+//            .document("bannier")
+//            .get().addOnCompleteListener(){
+//                bannerlist = it.result.get("url") as List<String>
+//            }
+//    }
+    LaunchedEffect(url){
         Firebase.firestore.collection("data")
             .document("bannier")
-            .get().addOnCompleteListener(){
-                bannerlist = it.result.get("url") as List<String>
+            .addSnapshotListener(){
+                value, error ->
+                bannerlist = value!!.get("url") as List<String>
             }
     }
 

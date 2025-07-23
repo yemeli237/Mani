@@ -87,18 +87,35 @@ fun Actus(navctl: NavHostController) {
     }
 
 
-    LaunchedEffect(Unit) {
+//    LaunchedEffect(Unit) {
+//        Firebase.firestore.collection("data")
+//            .document("posts")
+//            .collection("post")
+//            .get()
+//            .addOnCompleteListener (){
+//                if(it.isSuccessful){
+//                    val resultat = it.result.documents.mapNotNull { doc->
+//                        doc.toObject(postdata::class.java)
+//                    }
+//                    posttlist.value = resultat.plus(resultat).plus(resultat).shuffled()
+//
+//                }
+//            }
+//    }
+
+    LaunchedEffect (Unit){
         Firebase.firestore.collection("data")
             .document("posts")
             .collection("post")
-            .get().addOnCompleteListener(){
-                if(it.isSuccessful){
-                    val resultat = it.result.documents.mapNotNull { doc->
+            .addSnapshotListener{ result, error ->
+                if(result != null){
+                    val resultat = result.documents.mapNotNull { doc->
                         doc.toObject(postdata::class.java)
                     }
-                    posttlist.value = resultat.plus(resultat).plus(resultat).shuffled()
+                    posttlist.value = resultat
 
                 }
+
             }
     }
     Scaffold(

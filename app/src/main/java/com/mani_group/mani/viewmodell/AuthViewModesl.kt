@@ -45,7 +45,7 @@ class AuthViewModesl: ViewModel() {
                         nom = name,
                         email = email,
                         password = password,
-                        Id = userid!!,
+                        id = userid!!,
                         numero = numero,
                         img = img,
                         genre = genre,

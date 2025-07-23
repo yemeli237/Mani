@@ -50,21 +50,37 @@ fun produitMedicament(modifier: Modifier = Modifier.padding(16.dp, 0.dp)){
         mutableStateOf<List<medmodl>>(emptyList())
     }
 
+//    LaunchedEffect(Unit) {
+//        Firebase.firestore.collection("data")
+//            .document("stocke-med")
+//            .collection("medicament")
+////            .whereEqualTo("categorie", "Doliprane")//faire un filtre
+//            .get()
+//            .addOnCompleteListener(){
+//                if(it.isSuccessful){
+//                    val resultat = it.result.documents.mapNotNull { doc->
+//                        doc.toObject(medmodl::class.java)
+//                    }
+//                    medproduitlist.value = resultat.plus(resultat).plus(resultat).shuffled()
+//
+//
+//                }
+//            }
+//    }
     LaunchedEffect(Unit) {
         Firebase.firestore.collection("data")
             .document("stocke-med")
             .collection("medicament")
-//            .whereEqualTo("categorie", "Doliprane")//faire un filtre
-            .get().addOnCompleteListener(){
-                if(it.isSuccessful){
-                    val resultat = it.result.documents.mapNotNull { doc->
+            .addSnapshotListener(){snapshot, _ ->
+
+                if(snapshot != null){
+                    val resultat = snapshot.documents.mapNotNull { doc->
                         doc.toObject(medmodl::class.java)
                     }
                     medproduitlist.value = resultat.plus(resultat).plus(resultat).shuffled()
-
-
-                }
             }
+
+        }
     }
 
 

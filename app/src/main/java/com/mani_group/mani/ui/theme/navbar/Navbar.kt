@@ -35,7 +35,7 @@ val item = listOf(
         route = Route.Pharmacie
     ),
     BottomNavItem(
-        title = "Chat",
+        title = "SMS",
         icon = Icons.Default.Face,
         route = Route.Chat
     ),

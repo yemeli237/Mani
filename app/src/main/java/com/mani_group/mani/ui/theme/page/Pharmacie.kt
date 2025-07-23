@@ -1,7 +1,6 @@
 package com.mani_group.mani.ui.theme.page
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 
@@ -12,13 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,18 +34,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import coil.compose.AsyncImage
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.firestore
 import com.mani_group.mani.GlobalNav
 import com.mani_group.mani.Route
 import com.mani_group.mani.data.Pharmacie
 import com.mani_group.mani.data.couleurprincipal
 import com.mani_group.mani.data.dropmenu
-import com.mani_group.mani.data.medmodl
 //import com.mani_group.mani.data.pharmacie
 import com.mani_group.mani.ui.theme.navbar.Bottombarnav
-import com.mani_group.mani.ui.theme.section.BarrRecherche
 import com.mani_group.mani.ui.theme.section.BarrRecherchepharmacie
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,18 +70,20 @@ fun Pharmacie(navctl: NavHostController) {
 //    }
 fun recupererPharmaciesAvecId(onResult: (List<Pair<String, Pharmacie>>) -> Unit) {
     Firebase.firestore.collection("pharmacies")
-        .get()
-        .addOnSuccessListener { result ->
-            val pharmacies = result.documents.map { document ->
+//        .get()
+        .addSnapshotListener() { result: QuerySnapshot?, firebaseFirestoreException: FirebaseFirestoreException? ->
+            val pharmacies = result?.documents?.map { document ->
                 val id = document.id // 🔥 Récupérer l'ID unique
                 val pharmacie = document.toObject(Pharmacie::class.java) // Convertir en objet Pharmacie
                 if (pharmacie != null) id to pharmacie else null // Associer l'ID à chaque pharmacie
-            }.filterNotNull() // Supprimer les éventuelles valeurs null
-            onResult(pharmacies)
+            }?.filterNotNull() // Supprimer les éventuelles valeurs null
+            if (pharmacies != null) {
+                onResult(pharmacies)
+            }
         }
-        .addOnFailureListener { exception ->
-            println("Erreur lors de la récupération des pharmacies et des IDs : ${exception.message}")
-        }
+//        .addOnFailureListener { exception ->
+//            println("Erreur lors de la récupération des pharmacies et des IDs : ${exception.message}")
+//        }
 }
 
     LaunchedEffect(Unit) {
@@ -180,18 +174,18 @@ fun recupererPharmaciesAvecId(onResult: (List<Pair<String, Pharmacie>>) -> Unit)
 
                     }
                 }
-                item{
-
-                    androidx.compose.material.Text(
-                        "Sivous n'avez rien trouve, essayez de rechercher!!!",
-                        fontFamily = FontFamily.Cursive,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.Gray,
-                        fontSize = 20.sp,
-                        textAlign = TextAlign.Center,
-                        textDecoration = TextDecoration.Underline
-                    )
-                }
+//                item{
+//
+//                    androidx.compose.material.Text(
+//                        "Sivous n'avez rien trouve, essayez de rechercher!!!",
+//                        fontFamily = FontFamily.Cursive,
+//                        fontWeight = FontWeight.SemiBold,
+//                        color = Color.Gray,
+//                        fontSize = 20.sp,
+//                        textAlign = TextAlign.Center,
+//                        textDecoration = TextDecoration.Underline
+//                    )
+//                }
 
             }
 

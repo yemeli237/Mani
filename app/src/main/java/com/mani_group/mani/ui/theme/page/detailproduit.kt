@@ -58,20 +58,36 @@ fun DetailPage(navctl: NavHostController, produit: String) {
     var produits by remember {
         mutableStateOf(medmodl())
     }
-    LaunchedEffect(Unit) {
+
+//    LaunchedEffect(Unit) {
+//        Firebase.firestore.collection("data")
+//            .document("stocke-med")
+//            .collection("medicament")
+//            .document(produit).get()
+//            .addOnCompleteListener {
+//                if(it.isSuccessful){
+//                    var resultat = it.result.toObject(medmodl::class.java)
+//                    if (resultat != null) {
+//                        produits = resultat
+//                    }
+//                }
+//            }
+//    }
+    LaunchedEffect(Unit){
         Firebase.firestore.collection("data")
             .document("stocke-med")
             .collection("medicament")
-            .document(produit).get()
-            .addOnCompleteListener {
-                if(it.isSuccessful){
-                    var resultat = it.result.toObject(medmodl::class.java)
+            .document(produit)
+            .addSnapshotListener { snapshot, error ->
+                if (snapshot != null) {
+                    var resultat = snapshot.toObject(medmodl::class.java)
                     if (resultat != null) {
                         produits = resultat
                     }
                 }
             }
     }
+
     Scaffold(
         topBar = {
             TopAppBar(

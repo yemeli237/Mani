@@ -81,7 +81,8 @@ fun Home(navctl: NavHostController) {
     LaunchedEffect(Unit) {
         Firebase.firestore.collection("users")
             .document(FirebaseAuth.getInstance().currentUser?.uid!!)
-            .get().addOnCompleteListener(){
+            .get()
+            .addOnCompleteListener(){
                 name = it.result.get("nom").toString().split(" ")[0]
             }
     }
@@ -167,7 +168,7 @@ fun Home(navctl: NavHostController) {
                                 }
                             }
                             DropdownMenuItem(onClick = {  }) {
-                                TextButton(onClick = {openmenu = false}, modifier = Modifier.fillMaxWidth()) {
+                                TextButton(onClick = {openmenu = false; GlobalNav.navctl.navigate(Route.ChatBot)}, modifier = Modifier.fillMaxWidth()) {
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         verticalAlignment = Alignment.CenterVertically

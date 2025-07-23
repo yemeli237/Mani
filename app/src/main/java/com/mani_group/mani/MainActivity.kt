@@ -27,6 +27,9 @@ import com.mani_group.mani.ui.theme.page.Post
 //import com.mani_group.mani.ui.theme.page.Pharmacie
 import com.mani_group.mani.ui.theme.page.ResultProduit
 import com.mani_group.mani.ui.theme.page.UtilisateurInfo
+import com.mani_group.mani.ui.theme.page.chat_interface.Conversation
+import com.mani_group.mani.ui.theme.page.chat_interface.LoadConversation
+import com.mani_group.mani.ui.theme.page.maniai.ChatBot
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -103,6 +106,17 @@ class MainActivity : ComponentActivity() {
                 }
                 composable(Route.Donsang){
                     Donsang(navctl)
+                }
+                composable("${Route.Conversation}/{id}"){
+                    val id = it.arguments?.getString("id")
+                    Conversation(navctl, id)
+                }
+                composable("${Route.LoadConversation}/{id}"){
+                    val id = it.arguments?.getString("id")
+                    LoadConversation(navctl, id)
+                }
+                composable(Route.ChatBot){
+                    ChatBot()
                 }
 
             })

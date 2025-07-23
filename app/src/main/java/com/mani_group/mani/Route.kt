@@ -22,4 +22,7 @@ object Route {
     val UploadData = "UploadData"
     val Post = "Post"
     val Donsang = "Donsang"
+    val Conversation = "Conversation"
+    val LoadConversation = "LoadConversation"
+    val ChatBot = "ChatBot"
 }

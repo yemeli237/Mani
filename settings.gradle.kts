@@ -5,6 +5,7 @@ pluginManagement {
                 includeGroupByRegex("com\\.android.*")
                 includeGroupByRegex("com\\.google.*")
                 includeGroupByRegex("androidx.*")
+//                includeGroupByRegex("https://maven.google.com/web/index.html?q=generati#com.google.ai.client.generativeai:generativeai:0.2.2")
             }
         }
         mavenCentral()
@@ -16,6 +17,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+
     }
 }
 

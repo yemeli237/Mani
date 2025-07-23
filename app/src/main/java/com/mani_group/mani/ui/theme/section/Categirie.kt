@@ -39,19 +39,32 @@ fun Categorie(modifire: Modifier.Companion) {
         mutableStateOf<List<categorimodel>>(emptyList())
     }
 
-
-    LaunchedEffect(Unit) {
-//        url = "https://res.cloudinary.com/dcnnsq1xw/image/upload/v1745581244/4_v368dr.png"
+//
+//    LaunchedEffect(Unit) {
+////        url = "https://res.cloudinary.com/dcnnsq1xw/image/upload/v1745581244/4_v368dr.png"
+//        Firebase.firestore.collection("data")
+//            .document("stock")
+//            .collection("categories")
+//            .get().addOnCompleteListener(){
+//                if(it.isSuccessful){
+//                   val resultat = it.result.documents.mapNotNull { doc->
+//                       doc.toObject(categorimodel::class.java)
+//                   }
+//                    categorielist.value = resultat
+//
+//                }
+//            }
+//    }
+    LaunchedEffect(Unit){
         Firebase.firestore.collection("data")
             .document("stock")
             .collection("categories")
-            .get().addOnCompleteListener(){
-                if(it.isSuccessful){
-                   val resultat = it.result.documents.mapNotNull { doc->
-                       doc.toObject(categorimodel::class.java)
-                   }
+            .addSnapshotListener{snapshot,error->
+                if(snapshot!=null){
+                    val resultat = snapshot.documents.mapNotNull { doc->
+                        doc.toObject(categorimodel::class.java)
+                    }
                     categorielist.value = resultat
-
                 }
             }
     }

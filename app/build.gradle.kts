@@ -56,6 +56,10 @@ dependencies {
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
     implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.foundation.android)
+    implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.foundation.layout.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -66,6 +70,9 @@ dependencies {
 
     // Add the dependency for the Google services Gradle plugin
     //id("com.google.gms.google-services") version "4.4.2" apply false
+
+
+//    val nav_version = "2.8.4"
 
 
     val nav_version = "2.8.4"
@@ -110,9 +117,9 @@ dependencies {
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
     implementation("androidx.activity:activity-compose:1.8.0-alpha07")
     //material-icons
-//    implementation(libs.androidx.material.icons.extended)
+//    implementation("androidx.compose.material:material-icons-extended:1.5.4")
 
-    implementation (libs.ui )
+    implementation ("androidx.compose.ui:ui:1.0.5" )
     implementation ("androidx.compose.material:material:1.0.5" )
     implementation ("androidx.compose.ui:ui-tooling-preview:1.0.5")
     implementation ("androidx.activity:activity-compose:1.4.0")
@@ -131,6 +138,85 @@ dependencies {
     //noinspection UseTomlInstead
     implementation(libs.tbuonomo.dotsindicator)
     implementation(libs.colorpicker.compose)
+//
+//
+//    ////firebase
+//    // Import the Firebase BoM
+//    implementation(libs.firebase.bom)
+//
+//    // When using the BoM, you don't specify versions in Firebase library dependencies
+//
+//    // Add the dependency for the Firebase SDK for Google Analytics
+//    implementation(libs.firebase.analytics)
+//
+//    // TODO: Add the dependencies for any other Firebase products you want to use
+//    // See https://firebase.google.com/docs/android/setup#available-libraries
+//    // For example, add the dependencies for Firebase Authentication and Cloud Firestore
+//    implementation(libs.google.firebase.auth)
+//    implementation(libs.google.firebase.firestore)
+//    /////firebase
+//
+//
+//
+//    // Jetpack Compose Integration
+//    implementation (libs.androidx.navigation.compose)
+//
+//    // Views/Fragments Integration
+//    implementation (libs.androidx.navigation.fragment)
+//    implementation (libs.androidx.navigation.ui)
+//
+//    // Feature module support for Fragments
+//    implementation (libs.androidx.navigation.dynamic.features.fragment)
+//
+//    // Testing Navigation
+//    androidTestImplementation (libs.androidx.navigation.testing)
+//
+//    // JSON serialization library, works with the Kotlin serialization plugin.
+//    implementation (libs.kotlinx.serialization.json)
+//    implementation (libs.androidx.room.runtime )
+//
+//    // system ui controller
+//    implementation(libs.accompanist.systemuicontroller)
+//    implementation(libs.androidx.activity.compose.v180alpha07)
+//    //material-icons
+////    implementation(libs.androidx.material.icons.extended)
+//
+//    implementation (libs.ui )
+//    implementation ("androidx.compose.material:material:1.8.3" )
+//    implementation (libs.ui.tooling.preview)
+//    implementation (libs.androidx.activity.compose.v140)
+//    implementation ("com.squareup.okhttp3:okhttp:4.10.0" )
+//    implementation (libs.kotlinx.coroutines.android)
+//    implementation ("io.ktor:ktor-client-core:1.6.1")
+//    implementation (libs.ktor.client.android)
+//
+//    implementation ("com.google.code.gson:gson:2.10.1")
+//    implementation (libs.java.websocket)
+//    implementation ("com.google.code.gson:gson:2.10.1")
+//
+//
+//    ///
+//    implementation (libs.coil.kt.coil.compose)
+//    //noinspection UseTomlInstead
+//    implementation(libs.tbuonomo.dotsindicator)
+//    implementation(libs.colorpicker.compose)
+
+    //sdk de payement
+    implementation (libs.androidsdk)
+
+    //implementer plus d'icon
+    implementation(libs.androidx.material.icons.extended.vversion)
+
+//    implementation(libs.generativeai.z)
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.ai)
+
+    implementation("io.ktor:ktor-client-core:2.3.7")
+    implementation("io.ktor:ktor-client-cio:2.3.7")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.7")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
+
 
 
 }
