@@ -71,17 +71,22 @@ import com.mani_group.mani.ui.theme.page.chat_interface.Saisir
 import com.mani_group.mani.ui.theme.page.chat_interface.saisir
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.ContentType.Application.Json
+import io.ktor.http.content.TextContent
 import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
@@ -144,7 +149,7 @@ fun ChatBot(){
             TopAppBar(
                 navigationIcon = {
                     IconButton(onClick = {
-                        GlobalNav.navctl.navigate(Route.Home)
+                        GlobalNav.navctl.popBackStack()
                         /*TODO*/ }) {
                         Icon(imageVector = Icons.Outlined.ArrowBack, contentDescription = "", tint = MaterialTheme.colorScheme.inverseOnSurface)
                     }
@@ -290,26 +295,58 @@ fun SaisirAI(
     var reponseIA by remember {
         mutableStateOf("")
     }
+
+
+
     suspend fun RequeteGemini(prompt: String): String {
-        val client = HttpClient(CIO) {
-            install(ContentNegotiation) {
-                json(Json { ignoreUnknownKeys = true })
+        val recentMessages = Firebase.firestore.collection("users")
+            .document(Firebase.auth.currentUser?.uid.toString())
+            .collection("conversationIA")
+            .orderBy("timestamp")
+            .limit(10) // Les 3 derniers
+            .get()
+            .await()
+            .map { doc ->
+                Message(doc["id"] as String, doc["text"] as String,
+                    (doc["timestamp"] as Long).toString(), doc["uid"] as String
+                )
             }
+        val prompt = buildString {
+            append("Voici la conversation :\n")
+            recentMessages.forEach { append("$it\n") }
+            append("Utilisateur : $message\n")
+            append("Assistant :")
         }
 
-        val response: String = client.post(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${const().apikey}") {
-            contentType(ContentType.Application.Json)
-            setBody(
-                mapOf(
-                    "contents" to listOf(
-                        mapOf("parts" to listOf(mapOf("text" to prompt)))
+
+        val instruction = "Tu es un médecin expérimenté. Ne réponds qu'aux questions médicales avec précision,clarté et sans founir un long text:"
+        val formattedPrompt = "$instruction $prompt"
+
+        return try {
+            val client = HttpClient(CIO) {
+                install(ContentNegotiation) {
+                    json(Json { ignoreUnknownKeys = true })
+                }
+            }
+
+            val response: String = client.post(
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${const().apikey}"
+            ) {
+                contentType(ContentType.Application.Json)
+                setBody(
+                    mapOf(
+                        "contents" to listOf(
+                            mapOf("parts" to listOf(mapOf("text" to formattedPrompt)))
+                        )
                     )
                 )
-            )
-        }.bodyAsText()
+            }.bodyAsText()
 
-        return response
+            response
+        } catch (e: Exception) {
+            Log.d("GeminiAI", e.message.toString())
+            ""
+        }
     }
     var isLoading by remember { mutableStateOf(false) }
 

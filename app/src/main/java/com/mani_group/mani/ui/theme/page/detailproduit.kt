@@ -1,6 +1,7 @@
 package com.mani_group.mani.ui.theme.page
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -45,6 +47,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.firestore
 import com.mani_group.mani.Route
 import com.mani_group.mani.data.AppUtil
@@ -58,6 +63,29 @@ fun DetailPage(navctl: NavHostController, produit: String) {
     var produits by remember {
         mutableStateOf(medmodl())
     }
+
+    var name by remember {
+        mutableStateOf("")
+    }
+    var userlikelist = remember { mutableStateOf<List<String>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        try {
+            Firebase.firestore.collection("users")
+                .document(Firebase.auth.currentUser?.uid.toString())
+                .addSnapshotListener { document, error ->
+                    if (document != null) {
+                        if (document.exists()) {
+                            val content = document.get("like") as? List<String> ?: emptyList()
+                            userlikelist.value = content
+                        }
+                    }
+                }
+        }catch (e:Exception){
+            Log.d("like", "erreur: ${userlikelist}")
+        }
+    }
+
 
 //    LaunchedEffect(Unit) {
 //        Firebase.firestore.collection("data")
@@ -109,7 +137,8 @@ fun DetailPage(navctl: NavHostController, produit: String) {
     ) {padding->
 
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
         ) {
@@ -130,12 +159,15 @@ fun DetailPage(navctl: NavHostController, produit: String) {
                 HorizontalPager(
                     state = pageetat,
                     pageSpacing = 16.dp,
-                    modifier = Modifier.padding(10.dp).height(160.dp)
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .height(160.dp)
                 ) {
                     AsyncImage(
                         model = produits.image.get(it),
                         contentDescription = "image de ref",
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .height(220.dp)
                             .clip(
                                 RoundedCornerShape(16.dp)
@@ -146,7 +178,8 @@ fun DetailPage(navctl: NavHostController, produit: String) {
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(16.dp, 0.dp)
+                modifier = Modifier
+                    .padding(16.dp, 0.dp)
                     .fillMaxWidth(),
 
                 ) {
@@ -166,7 +199,8 @@ fun DetailPage(navctl: NavHostController, produit: String) {
                         Text(produits.like.toString())
                         Icon(
                             imageVector = Icons.Default.FavoriteBorder,
-                            contentDescription = ""
+                            contentDescription = "",
+                            tint = if (produit in userlikelist.value) Color.Green else Color.Gray
                         )
                     }
                 }
@@ -174,8 +208,52 @@ fun DetailPage(navctl: NavHostController, produit: String) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Button(
-                onClick = {},
-                modifier = Modifier.fillMaxWidth().height(50.dp).padding(16.dp, 0.dp),
+                onClick = {
+//                    Firebase.firestore.collection("data")
+//                        .document("stocke-med")
+//                        .collection("medicament")
+//                        .document(produit)
+//                        .update("like", produits.like + 1)
+
+
+
+//                    Firebase.firestore.collection("users")
+//                        .document(FirebaseAuth.getInstance().currentUser?.uid!!)
+//                        .update("like", FieldValue.arrayUnion(produit))
+//                        .addOnSuccessListener {
+//                            Log.d("like", "sauvegarde effectuer")
+//                        }
+//                    userlikelist.value
+//                        .filter { it.isNotBlank() }
+//                        .forEach { idsms ->
+//                            Log.d("like", "DetailPage: $idsms\n")
+//                        }
+
+
+
+                    if(produit in userlikelist.value){
+                        Log.d("like", "ce produit existe deja: $produit")
+                    }else{
+                        Firebase.firestore.collection("users")
+                            .document(FirebaseAuth.getInstance().currentUser?.uid!!)
+                            .update("like", FieldValue.arrayUnion(produit))
+                            .addOnSuccessListener {
+                                Log.d("like", "sauvegarde effectuer")
+                                Firebase.firestore.collection("data")
+                                    .document("stocke-med")
+                                    .collection("medicament")
+                                    .document(produit)
+                                    .update("like", produits.like + 1)
+                            }
+                    }
+
+
+//                    Log.d("like", "liste de like: ${userlikelist.value.firstOrNull()}")
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .padding(16.dp, 0.dp),
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = couleurprincipal,
@@ -185,7 +263,10 @@ fun DetailPage(navctl: NavHostController, produit: String) {
             Spacer(modifier = Modifier.height(8.dp))
             Button(
                 onClick = {},
-                modifier = Modifier.fillMaxWidth().height(50.dp).padding(16.dp, 0.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .padding(16.dp, 0.dp),
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = couleurprincipal,
@@ -209,7 +290,10 @@ fun DetailPage(navctl: NavHostController, produit: String) {
 
             produits.autre.forEach { (cle, valeur) ->
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(5.dp).padding(16.dp, 0.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp)
+                        .padding(16.dp, 0.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text("$cle : ", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = couleurprincipal)

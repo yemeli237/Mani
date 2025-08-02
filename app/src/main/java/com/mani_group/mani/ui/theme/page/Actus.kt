@@ -241,8 +241,15 @@ fun Actus(navctl: NavHostController) {
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceAround
                         ) {
+                            //bouton de like
                             OutlinedButton (
-                                onClick = {},
+                                onClick = {
+                                    Firebase.firestore.collection("data")
+                                        .document("posts")
+                                        .collection("post")
+                                        .document(item.id)
+                                        .update("like", item.like + 1)
+                                },
                             ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
@@ -252,6 +259,7 @@ fun Actus(navctl: NavHostController) {
                                     Text(item.like.toString(), color = couleurprincipal)
                                 }
                             }
+                            //nouton de partage
                             OutlinedButton (
                                 onClick = {},
                             ) {
@@ -263,6 +271,7 @@ fun Actus(navctl: NavHostController) {
                                     Text(item.like.toString(), color = couleurprincipal)
                                 }
                             }
+                            //bouton d'appel
                             OutlinedButton(
                                 onClick = {},
                             ) {
@@ -274,9 +283,11 @@ fun Actus(navctl: NavHostController) {
                                     Text("...", color = couleurprincipal)
                                 }
                             }
-
+                            //bouton de message
                             OutlinedButton(
-                                onClick = {},
+                                onClick = {
+                                    GlobalNav.navctl.navigate(Route.Chat)
+                                },
                             ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,

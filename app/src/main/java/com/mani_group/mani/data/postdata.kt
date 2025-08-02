@@ -14,4 +14,5 @@ data class postdata(
     val uid: String = "",
     val couleurtext : String = "${couleurprincipal}",
     val couleurbackground : String = "${Color.White}",
+    val id : String = "",
 )

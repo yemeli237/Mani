@@ -89,6 +89,7 @@ fun Login(navctl: NavHostController, modifier: Modifier = Modifier, AuthViewMode
             enabled = !isloading,
             onClick = {
                 isloading = true
+                adress = adress.replace("\\s".toRegex(), "")
                 AuthViewModesl.Login(adress, pass) { success, message ->
                     if (success) {
                         isloading = false

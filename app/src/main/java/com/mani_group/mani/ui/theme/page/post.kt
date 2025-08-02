@@ -497,7 +497,8 @@ fun post(
     comment: String,
     uid: String,
     couleurtext: String,
-    couleurbackground: String
+    couleurbackground: String,
+    id: String = ""
 ) {
     val poste = postdata(
         type = type,
@@ -509,21 +510,27 @@ fun post(
         comment = emptyMap(),
         uid = FirebaseAuth.getInstance().currentUser?.uid!!,
         couleurtext = couleurtext,
-        couleurbackground = couleurbackground
+        couleurbackground = couleurbackground,
+        id = id
     )
 
     db
         .collection("data")
         .document("posts")
         .collection("post")
-        .add(poste).addOnCompleteListener { postdata->
-        if (postdata.isSuccessful){
+        .add(poste).addOnSuccessListener { postdata->
+            val idgenerer = postdata.id
+            db.collection("data")
+                .document("posts")
+                .collection("post")
+                .document(idgenerer)
+                .update("id", idgenerer)
             GlobalNav.navctl.navigate(Route.Home)
             AppUtil.showToast(context,  "vous avez fait une annonce avec succès")
-        }else{
+        }.addOnFailureListener{e->
             AppUtil.showToast(context,  "Une erreur s'est produite")
         }
 
-    }
+
 }
 

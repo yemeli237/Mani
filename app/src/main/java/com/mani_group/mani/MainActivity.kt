@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
             val firepage = if (isConnected) Route.Home else Route.Choixconnexion
         val navctl = rememberNavController()
             GlobalNav.navctl = navctl
-            NavHost(navController = navctl, startDestination = firepage, builder = {
+            NavHost(navController = navctl, startDestination = Route.Actus, builder = {
                 composable(Route.Login){
                     Login(navctl)
                 }
