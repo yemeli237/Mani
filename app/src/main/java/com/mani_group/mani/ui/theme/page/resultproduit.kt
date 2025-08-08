@@ -95,7 +95,7 @@ fun ResultProduit(navctl: NavHostController, medicament: String?) {
 //                contentColor = couleurprincipal,
                 navigationIcon = {
                     androidx.compose.material3.IconButton(onClick = {
-                        navctl.navigate(Route.Home)
+                        navctl.popBackStack()
                     }) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "", tint = Color.White)
                     }

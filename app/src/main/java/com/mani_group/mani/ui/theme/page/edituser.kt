@@ -189,7 +189,7 @@ fun EditUser(navctl: NavHostController) {
 //                contentColor = couleurprincipal,
                 navigationIcon = {
                     androidx.compose.material3.IconButton(onClick = {
-                        navctl.navigate(Route.UtilisateurInfo)
+                        navctl.popBackStack()
                     }) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "", tint = Color.White)
                     }

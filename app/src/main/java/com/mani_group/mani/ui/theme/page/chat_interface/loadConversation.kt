@@ -128,7 +128,7 @@ fun LoadConversation(navctl: NavHostController, id: String?) {
             TopAppBar(
                 navigationIcon = {
                     IconButton(onClick = {
-                        GlobalNav.navctl.navigate(Route.Chat)
+                        GlobalNav.navctl.popBackStack()
                         /*TODO*/ }) {
                         Icon(imageVector = Icons.Outlined.ArrowBack, contentDescription = "", tint = MaterialTheme.colorScheme.inverseOnSurface)
                     }

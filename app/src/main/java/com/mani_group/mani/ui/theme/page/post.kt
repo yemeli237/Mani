@@ -163,7 +163,7 @@ fun Post(navctl: NavHostController) {
                 IconButton(
                     onClick = {
                         if(type == "" && contenu == ""){
-                            GlobalNav.navctl.navigate(Route.Home)
+                            GlobalNav.navctl.popBackStack()
                         }else{
                             dialog = true
 

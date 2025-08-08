@@ -1,7 +1,7 @@
 package com.mani_group.mani.ui.theme.page
 
-import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,25 +14,31 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.IconButton
+import androidx.compose.material.TextButton
+import androidx.compose.material.TextField
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.RemoveCircleOutline
+import androidx.compose.material.icons.filled.ToggleOff
+import androidx.compose.material.icons.filled.ToggleOn
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +46,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -47,22 +54,39 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.firestore
 import com.mani_group.mani.GlobalNav
 import com.mani_group.mani.Route
-import com.mani_group.mani.data.AppUtil
 import com.mani_group.mani.data.couleurprincipal
 import com.mani_group.mani.data.medmodl
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun DetailPage(navctl: NavHostController, produit: String) {
-
+fun CommandProduit(navctl: NavHostController, produit: String?) {
     var produits by remember {
         mutableStateOf(medmodl())
+    }
+    var quantite by remember {
+        mutableStateOf(1)
+    }
+    var montan by remember {
+        mutableStateOf(0)
+    }
+    var somme by remember {
+        mutableStateOf(0)
+    }
+    var frais by remember {
+        mutableStateOf(0)
+    }
+
+    var info by remember {
+        mutableStateOf(false)
+    }
+    var addfeed by remember {
+        mutableStateOf(false)
+    }
+    var numero by remember {
+        mutableStateOf("")
     }
 
     var name by remember {
@@ -87,26 +111,11 @@ fun DetailPage(navctl: NavHostController, produit: String) {
         }
     }
 
-
-//    LaunchedEffect(Unit) {
-//        Firebase.firestore.collection("data")
-//            .document("stocke-med")
-//            .collection("medicament")
-//            .document(produit).get()
-//            .addOnCompleteListener {
-//                if(it.isSuccessful){
-//                    var resultat = it.result.toObject(medmodl::class.java)
-//                    if (resultat != null) {
-//                        produits = resultat
-//                    }
-//                }
-//            }
-//    }
     LaunchedEffect(Unit){
         Firebase.firestore.collection("data")
             .document("stocke-med")
             .collection("medicament")
-            .document(produit)
+            .document("${produit}")
             .addSnapshotListener { snapshot, error ->
                 if (snapshot != null) {
                     var resultat = snapshot.toObject(medmodl::class.java)
@@ -130,7 +139,7 @@ fun DetailPage(navctl: NavHostController, produit: String) {
                 },
                 backgroundColor = couleurprincipal,
                 title = {
-                    Text("Detail", textAlign = TextAlign.Center, fontWeight = FontWeight.SemiBold, color = Color.White, fontSize = 18.sp)
+                    Text("Commander", textAlign = TextAlign.Center, fontWeight = FontWeight.SemiBold, color = Color.White, fontSize = 18.sp)
                 },
 
                 )
@@ -184,10 +193,10 @@ fun DetailPage(navctl: NavHostController, produit: String) {
                     .fillMaxWidth(),
 
                 ) {
-                Text(
-                    produits.prix + "fcf", fontSize = 16.sp, color = Color.Red,
-                    style = TextStyle(textDecoration = TextDecoration.LineThrough)
-                )
+//                Text(
+//                    produits.prix + "fcf", fontSize = 16.sp, color = Color.Red,
+//                    style = TextStyle(textDecoration = TextDecoration.LineThrough)
+//                )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(produits.prixnet + "fcf", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.weight(1f))
@@ -207,111 +216,129 @@ fun DetailPage(navctl: NavHostController, produit: String) {
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                Text("Quantite",fontWeight = FontWeight.Bold)
+                IconButton(onClick = {quantite = if(quantite <= 1) 1 else quantite - 1}) {
+                    Icon(imageVector = Icons.Default.RemoveCircleOutline, contentDescription = "reduire", tint = Color.Red)
+                }
+                Text("$quantite",fontWeight = FontWeight.Bold)
+                IconButton(onClick = {quantite = quantite +1}) {
+                    Icon(imageVector = Icons.Default.AddCircle, contentDescription = "reduire", tint = couleurprincipal)
+                }
+                try {
+                    somme = quantite*produits.prixnet.toInt()
+                }catch (e: Exception){
+                    Log.d("prix", "$e")
+                }
+                Text("total : ${somme}", fontWeight = FontWeight.Bold)
 
-            Button(
-                onClick = {
-//                    Firebase.firestore.collection("data")
-//                        .document("stocke-med")
-//                        .collection("medicament")
-//                        .document(produit)
-//                        .update("like", produits.like + 1)
-
-
-
-//                    Firebase.firestore.collection("users")
-//                        .document(FirebaseAuth.getInstance().currentUser?.uid!!)
-//                        .update("like", FieldValue.arrayUnion(produit))
-//                        .addOnSuccessListener {
-//                            Log.d("like", "sauvegarde effectuer")
-//                        }
-//                    userlikelist.value
-//                        .filter { it.isNotBlank() }
-//                        .forEach { idsms ->
-//                            Log.d("like", "DetailPage: $idsms\n")
-//                        }
-
-
-
-                    if(produit in userlikelist.value){
-                        Log.d("like", "ce produit existe deja: $produit")
-                    }else{
-                        Firebase.firestore.collection("users")
-                            .document(FirebaseAuth.getInstance().currentUser?.uid!!)
-                            .update("like", FieldValue.arrayUnion(produit))
-                            .addOnSuccessListener {
-                                Log.d("like", "sauvegarde effectuer")
-                                Firebase.firestore.collection("data")
-                                    .document("stocke-med")
-                                    .collection("medicament")
-                                    .document(produit)
-                                    .update("like", produits.like + 1)
-                            }
-                    }
-
-
-//                    Log.d("like", "liste de like: ${userlikelist.value.firstOrNull()}")
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-                    .padding(16.dp, 0.dp),
-                shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = couleurprincipal,
-                    contentColor = Color.White
-                )
-            ) { Text(text = "Sauvegarder", fontWeight = FontWeight.Bold, fontSize = 18.sp) }
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(
-                onClick = {
-                    GlobalNav.navctl.navigate("${Route.CommandProduit}/${produits.id}")
-                    Log.d("Produit", produits.id)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-                    .padding(16.dp, 0.dp),
-                shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = couleurprincipal,
-                    contentColor = Color.White
-                )
-            ) { Text(text = "Passer la commande", fontWeight = FontWeight.Bold, fontSize = 18.sp) }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text("Pharmacie ${produits.pharmacie}", fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.padding(16.dp, 0.dp))
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text("Description: ", fontSize = 20.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(16.dp, 0.dp), color = couleurprincipal)
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(produits.description, fontSize = 16.sp,modifier = Modifier.padding(16.dp), fontWeight = FontWeight.Thin)
-            Spacer(modifier = Modifier.height(8.dp))
-
-            if (produits.autre.isNotEmpty()) {
-                Text("Autre: ", fontSize = 20.sp, color = couleurprincipal, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(16.dp, 0.dp))
             }
             Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                Text("Net a payer : ${somme+frais}XAF", fontWeight = FontWeight.Bold)
+                Text("Livraison : ${frais}XAF", fontWeight = FontWeight.Bold)
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text("Livraison ?", fontWeight = FontWeight.Bold)
+                if(addfeed){
+                    IconButton(onClick = {addfeed = false; frais = if(frais > 500) frais - 500 else 0}) {
+                        Icon(imageVector = Icons.Default.ToggleOn, contentDescription = "ajourter les frais de livraison", tint = couleurprincipal)
+                    }
+                }else{
+                    IconButton(onClick = {addfeed = true; frais = if (frais == 0) 0 + 500 else 0}) {
+                        Icon(imageVector = Icons.Default.ToggleOff, contentDescription = "retirer les frais de livraison", tint = Color.Red)
+                    }
+                }
+            }
 
-            produits.autre.forEach { (cle, valeur) ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(5.dp)
-                        .padding(16.dp, 0.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("$cle : ", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = couleurprincipal)
-                    Text(valeur, fontSize = 16.sp)
+            Spacer(modifier = Modifier.height(8.dp))
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Numero de payement")
+                OutlinedTextField(value = numero, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), onValueChange = {numero = it}, label = {
+                    Text("numero OM ou MOMO", fontWeight = FontWeight.Bold,)
+                }, shape = RoundedCornerShape(10.dp),  colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = couleurprincipal,
+                    focusedBorderColor = couleurprincipal,
+                    unfocusedBorderColor = couleurprincipal
+                ),
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+
+                onClick = {
+
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .padding(16.dp, 0.dp),
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = couleurprincipal,
+                    contentColor = Color.White
+                )
+            ) { Text(text = "Valider", fontWeight = FontWeight.Bold, fontSize = 18.sp) }
+
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if(info){
+                TextButton(onClick = {info = false}) {
+                    Text("Masquer les information")
+                }
+                Text("Pharmacie ${produits.pharmacie}", fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.padding(16.dp, 0.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text("Description: ", fontSize = 20.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(16.dp, 0.dp), color = couleurprincipal)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(produits.description, fontSize = 16.sp,modifier = Modifier.padding(16.dp), fontWeight = FontWeight.Thin)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                if (produits.autre.isNotEmpty()) {
+                    Text("Autre: ", fontSize = 20.sp, color = couleurprincipal, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(16.dp, 0.dp))
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                produits.autre.forEach { (cle, valeur) ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(5.dp)
+                            .padding(16.dp, 0.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("$cle : ", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = couleurprincipal)
+                        Text(valeur, fontSize = 16.sp)
+                    }
+                }
+            }else{
+                TextButton(onClick = {info = true}) {
+                    Text("Voire les information")
                 }
             }
 
 
         }
     }
-
-
-
-
-
-
 }

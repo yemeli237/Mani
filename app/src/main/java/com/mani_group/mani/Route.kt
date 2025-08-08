@@ -25,4 +25,6 @@ object Route {
     val Conversation = "Conversation"
     val LoadConversation = "LoadConversation"
     val ChatBot = "ChatBot"
+    val CommandProduit = "CommandProduit"
+    val Commentaire = "Commentaire"
 }

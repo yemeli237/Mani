@@ -122,10 +122,6 @@ fun Conversation(navctl: NavHostController, id: String?) {
 
 
 
-
-
-
-
     Scaffold(
         bottomBar = {
             saisir(
@@ -140,7 +136,7 @@ fun Conversation(navctl: NavHostController, id: String?) {
             TopAppBar(
                 navigationIcon = {
                     IconButton(onClick = {
-                        GlobalNav.navctl.navigate(Route.Chat)
+                        GlobalNav.navctl.popBackStack()
                     /*TODO*/ }) {
                         Icon(imageVector = Icons.Outlined.ArrowBack, contentDescription = "", tint = MaterialTheme.colorScheme.inverseOnSurface)
                     }

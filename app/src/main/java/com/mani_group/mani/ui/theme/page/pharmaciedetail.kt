@@ -80,7 +80,7 @@ fun DetailPagePharmacie(navctl: NavHostController, produit: String) {
 //                contentColor = couleurprincipal,
                 navigationIcon = {
                     IconButton(onClick = {
-                        navctl.navigate(Route.Pharmacie)
+                        navctl.popBackStack()
                     }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,

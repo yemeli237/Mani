@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.Person
 import androidx.compose.material3.Card
@@ -150,70 +151,74 @@ fun Discussions(){
 
         val scrollState = rememberScrollState()
 
-        Column(
-            modifier = Modifier.verticalScroll(rememberScrollState())
-        ) {
-            previews.value.forEach { preview ->
-                if (preview.smsid.isNotBlank() && preview.lastMessage.isNotBlank()) {
-                    Column(
-                        modifier = Modifier.padding(16.dp).clickable {
-                            GlobalNav.navctl.navigate("${Route.LoadConversation}/${preview.smsid.toString()}\"")
-                        }
-
-                    ) {
-
-                        Row {
-                            val inputStream = Base64.decode(preview.img, Base64.DEFAULT)
-                            val bitmap = BitmapFactory.decodeByteArray(inputStream, 0, inputStream.size)
-                            Card(
-                                modifier = Modifier
-                                    .size(50.dp)
-                                    .border(
-                                        width = 2.dp,
-                                        color = Color.White,
-                                        shape = RoundedCornerShape(50.dp)
-                                    )
-                                ,
-                                shape = RoundedCornerShape(50.dp),
-                                elevation = CardDefaults.cardElevation(1.dp),
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.inverseOnSurface)
-                            ) {
-                                if (bitmap == null){
-                                    Icon(
-                                        imageVector = Icons.Sharp.Person,
-                                        contentDescription = "",
-                                        tint = MaterialTheme.colorScheme.onBackground,
-                                        modifier = Modifier.size(50.dp)
-                                    )
-                                }else{
-                                    Image(
-                                        bitmap = bitmap.asImageBitmap(),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(50.dp),
-                                        contentScale = ContentScale.Crop
-                                    )
-                                }
+        if(conversationIds.value.isEmpty()){
+            LinearProgressIndicator()
+        }else{
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
+                previews.value.forEach { preview ->
+                    if (preview.smsid.isNotBlank() && preview.lastMessage.isNotBlank()) {
+                        Column(
+                            modifier = Modifier.padding(16.dp).clickable {
+                                GlobalNav.navctl.navigate("${Route.LoadConversation}/${preview.smsid.toString()}\"")
                             }
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Column {
-                                Text(text = preview.receiverUid.ifBlank { "Nom inconnu" }, style = MaterialTheme.typography.titleMedium, )
-                                Row(
-                                    modifier = Modifier.padding(top = 5.dp).fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
+
+                        ) {
+
+                            Row {
+                                val inputStream = Base64.decode(preview.img, Base64.DEFAULT)
+                                val bitmap = BitmapFactory.decodeByteArray(inputStream, 0, inputStream.size)
+                                Card(
+                                    modifier = Modifier
+                                        .size(50.dp)
+                                        .border(
+                                            width = 2.dp,
+                                            color = Color.White,
+                                            shape = RoundedCornerShape(50.dp)
+                                        )
+                                    ,
+                                    shape = RoundedCornerShape(50.dp),
+                                    elevation = CardDefaults.cardElevation(1.dp),
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.inverseOnSurface)
                                 ) {
-                                    Text(
-                                        text = preview.lastMessage.ifBlank { "Message vide" },
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                    )
-                                    Text(text = formatWhatsAppTime(preview.timestamp))
+                                    if (bitmap == null){
+                                        Icon(
+                                            imageVector = Icons.Sharp.Person,
+                                            contentDescription = "",
+                                            tint = MaterialTheme.colorScheme.onBackground,
+                                            modifier = Modifier.size(50.dp)
+                                        )
+                                    }else{
+                                        Image(
+                                            bitmap = bitmap.asImageBitmap(),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(50.dp),
+                                            contentScale = ContentScale.Crop
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column {
+                                    Text(text = preview.receiverUid.ifBlank { "Nom inconnu" }, style = MaterialTheme.typography.titleMedium, )
+                                    Row(
+                                        modifier = Modifier.padding(top = 5.dp).fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = preview.lastMessage.ifBlank { "Message vide" },
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                        )
+                                        Text(text = formatWhatsAppTime(preview.timestamp))
 //                                    Text(text = SimpleDateFormat("HH:mm").format(Date(preview.timestamp)))
 //                                    Text(text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(preview.timestamp)))
 //                                    Log.d("Timestamp", "Valeur brute : ${preview.timestamp}")
+                                    }
                                 }
                             }
+                            Divider()
                         }
-                        Divider()
                     }
                 }
             }

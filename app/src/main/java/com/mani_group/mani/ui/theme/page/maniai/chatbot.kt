@@ -319,7 +319,7 @@ fun SaisirAI(
         }
 
 
-        val instruction = "Tu es un médecin expérimenté. Ne réponds qu'aux questions médicales avec précision,clarté et sans founir un long text:"
+        val instruction = "Tu es un médecin expérimenté. Ne réponds qu'aux questions médicales avec précision"
         val formattedPrompt = "$instruction $prompt"
 
         return try {

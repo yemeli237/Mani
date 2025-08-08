@@ -16,6 +16,7 @@ import com.mani_group.mani.ui.theme.page.Actus
 import com.mani_group.mani.ui.theme.page.Aide
 import com.mani_group.mani.ui.theme.page.CategoriParProduit
 import com.mani_group.mani.ui.theme.page.Chat
+import com.mani_group.mani.ui.theme.page.CommandProduit
 import com.mani_group.mani.ui.theme.page.DetailPage
 import com.mani_group.mani.ui.theme.page.DetailPagePharmacie
 import com.mani_group.mani.ui.theme.page.Donsang
@@ -27,6 +28,7 @@ import com.mani_group.mani.ui.theme.page.Post
 //import com.mani_group.mani.ui.theme.page.Pharmacie
 import com.mani_group.mani.ui.theme.page.ResultProduit
 import com.mani_group.mani.ui.theme.page.UtilisateurInfo
+import com.mani_group.mani.ui.theme.page.chat_interface.Commentaire
 import com.mani_group.mani.ui.theme.page.chat_interface.Conversation
 import com.mani_group.mani.ui.theme.page.chat_interface.LoadConversation
 import com.mani_group.mani.ui.theme.page.maniai.ChatBot
@@ -118,6 +120,15 @@ class MainActivity : ComponentActivity() {
                 composable(Route.ChatBot){
                     ChatBot()
                 }
+                composable("${Route.CommandProduit}/{idproduit}"){
+                    val produit = it.arguments?.getString("idproduit")
+                    CommandProduit(navctl, produit )
+                }
+                composable("${Route.Commentaire}/{id}"){
+                    val post = it.arguments?.getString("id")
+                    Commentaire(post)
+                }
+
 
             })
         }

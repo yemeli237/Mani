@@ -161,7 +161,7 @@ fun Donsang(navctl: NavHostController) {
                     if (connect != null && !connect!!.isAnonymous){
                         TextButton(
                             onClick = {
-                                navctl.navigate(Route.UtilisateurInfo)
+                                navctl.popBackStack()
                             }
                         ) {
                             Text(name,fontWeight = FontWeight.Bold, fontSize = 18.sp,)

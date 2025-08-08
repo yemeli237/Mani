@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -122,71 +123,63 @@ fun recupererPharmaciesAvecId(onResult: (List<Pair<String, Pharmacie>>) -> Unit)
             )
         }
     ) {padding ->
-            LazyColumn(
-                contentPadding = padding,
-                modifier = Modifier.padding(16.dp).fillMaxSize()
-            ) {
-                item {
-                    BarrRecherchepharmacie()
-                    Spacer(modifier = Modifier.height(15.dp))
-                }
+            if(pharmacielist.value.isEmpty()){
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth().padding(padding))
+            }else{
+                LazyColumn(
+                    contentPadding = padding,
+                    modifier = Modifier.padding(16.dp).fillMaxSize()
+                ) {
+                    item {
+                        BarrRecherchepharmacie()
+                        Spacer(modifier = Modifier.height(15.dp))
+                    }
 
-                items(pharmacielist.value){item ->
-                    Card(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth()
+                    items(pharmacielist.value){item ->
+                        Card(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .fillMaxWidth()
 //                            .height(320.dp)
-                            .clickable {
-                                GlobalNav.navctl.navigate("${Route.DetailPharmacie}/${item.nom}")
-                            },
-                        shape = RoundedCornerShape(12.dp),
-                        elevation = CardDefaults.cardElevation(4.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-                    ) {
+                                .clickable {
+                                    GlobalNav.navctl.navigate("${Route.DetailPharmacie}/${item.nom}")
+                                },
+                            shape = RoundedCornerShape(12.dp),
+                            elevation = CardDefaults.cardElevation(4.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                        ) {
 
-                        Text(
-                            item.nom,
-                            modifier = Modifier.padding(8.dp),
-                            fontSize = 18.sp, fontWeight = FontWeight.SemiBold,
-                            color = couleurprincipal,
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1
-                        )
-                        Row {
                             Text(
-                                item.adresse,
-                                modifier = Modifier.padding(8.dp).width(200.dp),
-                                fontSize = 16.sp,
+                                item.nom,
+                                modifier = Modifier.padding(8.dp),
+                                fontSize = 18.sp, fontWeight = FontWeight.SemiBold,
                                 color = couleurprincipal,
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 1
                             )
-                            Spacer(modifier = Modifier.weight(1f))
-                            Text(
-                                item.telephone[0],
-                                modifier = Modifier.padding(8.dp),
-                                fontSize = 16.sp,
-                                overflow = TextOverflow.Ellipsis,
-                                maxLines = 1
+                            Row {
+                                Text(
+                                    item.adresse,
+                                    modifier = Modifier.padding(8.dp).width(200.dp),
+                                    fontSize = 16.sp,
+                                    color = couleurprincipal,
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 1
                                 )
+                                Spacer(modifier = Modifier.weight(1f))
+                                Text(
+                                    item.telephone[0],
+                                    modifier = Modifier.padding(8.dp),
+                                    fontSize = 16.sp,
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 1
+                                )
+                            }
+
                         }
-
                     }
-                }
-//                item{
-//
-//                    androidx.compose.material.Text(
-//                        "Sivous n'avez rien trouve, essayez de rechercher!!!",
-//                        fontFamily = FontFamily.Cursive,
-//                        fontWeight = FontWeight.SemiBold,
-//                        color = Color.Gray,
-//                        fontSize = 20.sp,
-//                        textAlign = TextAlign.Center,
-//                        textDecoration = TextDecoration.Underline
-//                    )
-//                }
 
+                }
             }
 
 

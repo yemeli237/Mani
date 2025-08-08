@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
@@ -103,59 +104,63 @@ fun BanierUtilisateur(){
 
 
 
-    LazyRow(modifier = Modifier.padding(10.dp)) {
-        items(listUtilisateur.value){item->
-            //photo de profil
-            if(item.id in destinataires.value){
+   if(listUtilisateur.value.isEmpty()){
+       LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+   }else{
+       LazyRow(modifier = Modifier.padding(10.dp)) {
+           items(listUtilisateur.value){item->
+               //photo de profil
+               if(item.id in destinataires.value){
 //                Log.d("destinataire", "BanierUtilisateur: ${item.id}")
-            }else{
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Card(
-                        modifier = Modifier
-                            .size(50.dp)
-                            .border(
-                                width = 2.dp,
-                                color = Color(0xFF00bf63),
-                                shape = RoundedCornerShape(50.dp)
-                            )
-                            .clickable { GlobalNav.navctl.navigate("${Route.Conversation}/${item.id}") }
-                        ,
-                        shape = RoundedCornerShape(50.dp),
-                        elevation = CardDefaults.cardElevation(4.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.inverseOnSurface)
-                    ) {
-                        val inputStream = Base64.decode(item.img, Base64.DEFAULT)
-                        val bitmap = BitmapFactory.decodeByteArray(inputStream, 0, inputStream.size)
-                        if (bitmap == null){
-                            Icon(
-                                imageVector = Icons.Sharp.Person,
-                                contentDescription = "",
-                                tint = MaterialTheme.colorScheme.onBackground,
-                                modifier = Modifier.size(50.dp)
-                            )
-                        }else{
-                            Image(
-                                bitmap = bitmap.asImageBitmap(),
-                                contentDescription = null,
-                                modifier = Modifier.size(50.dp),
-                                contentScale = ContentScale.Crop
-                            )
-                        }
+               }else{
+                   Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                       Card(
+                           modifier = Modifier
+                               .size(50.dp)
+                               .border(
+                                   width = 2.dp,
+                                   color = Color(0xFF00bf63),
+                                   shape = RoundedCornerShape(50.dp)
+                               )
+                               .clickable { GlobalNav.navctl.navigate("${Route.Conversation}/${item.id}") }
+                           ,
+                           shape = RoundedCornerShape(50.dp),
+                           elevation = CardDefaults.cardElevation(4.dp),
+                           colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.inverseOnSurface)
+                       ) {
+                           val inputStream = Base64.decode(item.img, Base64.DEFAULT)
+                           val bitmap = BitmapFactory.decodeByteArray(inputStream, 0, inputStream.size)
+                           if (bitmap == null){
+                               Icon(
+                                   imageVector = Icons.Sharp.Person,
+                                   contentDescription = "",
+                                   tint = MaterialTheme.colorScheme.onBackground,
+                                   modifier = Modifier.size(50.dp)
+                               )
+                           }else{
+                               Image(
+                                   bitmap = bitmap.asImageBitmap(),
+                                   contentDescription = null,
+                                   modifier = Modifier.size(50.dp),
+                                   contentScale = ContentScale.Crop
+                               )
+                           }
 
 
-                    }
-                    Text(
-                        if(item.id == Firebase.auth.currentUser?.uid) "Moi" else item.nom,
-                        color = Color(0xFF00bf63),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.width(50.dp)
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-        }
-    }
+                       }
+                       Text(
+                           if(item.id == Firebase.auth.currentUser?.uid) "Moi" else item.nom,
+                           color = Color(0xFF00bf63),
+                           maxLines = 1,
+                           overflow = TextOverflow.Ellipsis,
+                           modifier = Modifier.width(50.dp)
+                       )
+                   }
+               }
+               Spacer(modifier = Modifier.width(8.dp))
+           }
+       }
+   }
 //    Spacer(modifier = Modifier.height(8.dp))
     if(load){
         TextButton(onClick = {}, modifier = Modifier.fillMaxWidth()) { Text("Voire plus ...") }

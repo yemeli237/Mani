@@ -118,7 +118,7 @@ fun UtilisateurInfo(navctl: NavHostController, AuthViewModesl: AuthViewModesl = 
             IconButton(
                 onClick = {
 
-                    GlobalNav.navctl.navigate(Route.Home)
+                    GlobalNav.navctl.popBackStack()
 
                 }
             ) {

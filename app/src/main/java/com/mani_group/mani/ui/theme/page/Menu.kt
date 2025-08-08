@@ -50,7 +50,7 @@ fun Menu(navctl: NavHostController, AuthViewModesl: AuthViewModesl = viewModel()
                 title = { Text("Menu")  },
                 navigationIcon = {
                     androidx.compose.material3.IconButton(onClick = {
-                        navctl.navigate(Route.Home)
+                        navctl.popBackStack()
                     }) {
                         androidx.compose.material3.Icon(
                             imageVector = Icons.Default.ArrowBack,
