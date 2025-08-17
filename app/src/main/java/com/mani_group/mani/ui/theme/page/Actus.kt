@@ -54,6 +54,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -113,19 +114,23 @@ fun Actus(navctl: NavHostController) {
 //    }
 
     LaunchedEffect (Unit){
-        Firebase.firestore.collection("data")
-            .document("posts")
-            .collection("post")
-            .addSnapshotListener{ result, error ->
-                if(result != null){
-                    val resultat = result.documents.mapNotNull { doc->
-                        doc.toObject(postdata::class.java)
+        try {
+            Firebase.firestore.collection("data")
+                .document("posts")
+                .collection("post")
+                .addSnapshotListener{ result, error ->
+                    if(result != null){
+                        val resultat = result.documents.mapNotNull { doc->
+                            doc.toObject(postdata::class.java)
+                        }
+                        posttlist.value = resultat.shuffled()
+//
                     }
-                    posttlist.value = resultat
 
                 }
-
-            }
+        }catch (e: Exception){
+            Log.d("firebase", "erreur $e")
+        }
     }
     LaunchedEffect(Unit) {
         Firebase.firestore.collection("users")
@@ -143,26 +148,11 @@ fun Actus(navctl: NavHostController) {
         bottomBar = {
             Bottombarnav(navctl)
         },
-        topBar = {
 
-            TopAppBar(
-
-                title = { Text("Actualite")  },
-                actions = {
-                    dropmenu()
-                },
-                colors =  TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF00bf63),
-                    titleContentColor = MaterialTheme.colorScheme.inverseOnSurface,
-                    actionIconContentColor = MaterialTheme.colorScheme.inverseOnSurface
-                )
-
-            )
-        }
 
     ) {padding ->
         if (posttlist.value.isEmpty()){
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth().padding(padding))
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth().padding(padding),color = couleurprincipal,)
         }else{
             LazyColumn(
                 contentPadding = padding,
@@ -235,7 +225,7 @@ fun Actus(navctl: NavHostController) {
                                     Image(
                                         bitmap = bitmap.asImageBitmap(),
                                         contentDescription = null,
-                                        modifier = Modifier.fillMaxWidth(),
+                                        modifier = Modifier.fillMaxWidth().height(300.dp),
                                         contentScale = ContentScale.Crop,
                                     )
                                 }
@@ -243,6 +233,7 @@ fun Actus(navctl: NavHostController) {
                             }else if(item.type == "Text"){
 
                                 Box(
+                                    contentAlignment = Alignment.Center,
                                     modifier = Modifier.height(300.dp).fillMaxWidth().background(stringToColor(item.couleurbackground))
                                 ) {
                                     Text(item.contenu,
@@ -250,7 +241,7 @@ fun Actus(navctl: NavHostController) {
                                         color = stringToColor(item.couleurtext),
                                         maxLines = 5,
                                         overflow = TextOverflow.Ellipsis,
-                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                        textAlign = TextAlign.Center,
                                         fontWeight = FontWeight.Bold,
                                         modifier = Modifier.padding(10.dp)
                                     )
@@ -269,34 +260,45 @@ fun Actus(navctl: NavHostController) {
                                 OutlinedButton (
                                     onClick = {
 
-                                        //recupere la liste complete des like
-                                        Firebase.firestore.collection("users")
+//                                        //recupere la liste complete des like
+//                                        Firebase.firestore.collection("users")
+//                                            .document(Firebase.auth.currentUser?.uid.toString())
+//                                            .addSnapshotListener { document, error ->
+//                                                if (document != null) {
+//                                                    if (document.exists()) {
+//                                                        val like = document.get("like") as? List<String> ?: emptyList()
+//                                                        likelist.value = like
+//                                                    }
+//                                                }
+//                                            }
+
+                                        Firebase.firestore
+                                            .collection("users")
                                             .document(Firebase.auth.currentUser?.uid.toString())
-                                            .addSnapshotListener { document, error ->
-                                                if (document != null) {
-                                                    if (document.exists()) {
-                                                        val like = document.get("like") as? List<String> ?: emptyList()
-                                                        likelist.value = like
-                                                    }
+                                            .get()
+                                            .addOnCompleteListener {
+                                                if(it.isSuccessful){
+                                                    val name = it.result.get("like") as? List<String> ?: emptyList()
+                                                    likelist.value = name
                                                 }
                                             }
 
 
                                         if(item.id in likelist.value){
-                                            Firebase.firestore.collection("data")
-                                                .document("posts")
-                                                .collection("post")
-                                                .document(item.id)
-                                                .update("like", item.like - 1)
-
-                                            Firebase.firestore.collection("users")
-                                                .document("${Firebase.auth.currentUser?.uid}")
-                                                .update("like", FieldValue.arrayRemove(item.id))
-                                                .addOnCompleteListener {
-                                                    if(it.isSuccessful) {
-                                                        Log.d("like", "like supprimé")
-                                                    }
-                                                }
+//                                            Firebase.firestore.collection("data")
+//                                                .document("posts")
+//                                                .collection("post")
+//                                                .document(item.id)
+//                                                .update("like", item.like - 1)
+//
+//                                            Firebase.firestore.collection("users")
+//                                                .document("${Firebase.auth.currentUser?.uid}")
+//                                                .update("like", FieldValue.arrayRemove(item.id))
+//                                                .addOnCompleteListener {
+//                                                    if(it.isSuccessful) {
+//                                                        Log.d("like", "like supprimé")
+//                                                    }
+//                                                }
                                         }else{
                                             Firebase.firestore.collection("data")
                                                 .document("posts")
@@ -330,6 +332,7 @@ fun Actus(navctl: NavHostController) {
                                 OutlinedButton (
                                     onClick = {
                                         GlobalNav.navctl.navigate("${Route.Commentaire}/${item.id}")
+                                        Log.d("posid", item.id)
                                     },
                                 ) {
                                     Row(

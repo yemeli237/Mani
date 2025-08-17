@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Message
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -35,8 +36,8 @@ val item = listOf(
         route = Route.Pharmacie
     ),
     BottomNavItem(
-        title = "SMS",
-        icon = Icons.Default.Face,
+        title = "Message",
+        icon = Icons.Default.Message,
         route = Route.Chat
     ),
     BottomNavItem(

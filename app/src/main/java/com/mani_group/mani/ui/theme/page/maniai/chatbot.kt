@@ -159,7 +159,7 @@ fun ChatBot(){
                     TextButton (onClick = {}) {
                         Card(
                             modifier = Modifier
-                                .size(50.dp)
+                                .size(40.dp)
                                 .border(
                                     width = 2.dp,
                                     color = Color.White,
@@ -314,13 +314,13 @@ fun SaisirAI(
         val prompt = buildString {
             append("Voici la conversation :\n")
             recentMessages.forEach { append("$it\n") }
-            append("Utilisateur : $message\n")
-            append("Assistant :")
+            append("utilisateur : $message\n")
+            append("model :")
         }
 
 
         val instruction = "Tu es un médecin expérimenté. Ne réponds qu'aux questions médicales avec précision"
-        val formattedPrompt = "$instruction $prompt"
+        val formattedPrompt = "$instruction, $prompt"
 
         return try {
             val client = HttpClient(CIO) {
@@ -373,7 +373,7 @@ fun SaisirAI(
                     disabledIndicatorColor = Color.Transparent
                 ),
                 placeholder = {
-                    Text(if(isLoading) " Chargement..." else "Demandez moi quelque chose")
+                    Text(if(isLoading) " ..................................." else "Demandez moi quelque chose")
                 },
                 trailingIcon = {
                     IconButton(

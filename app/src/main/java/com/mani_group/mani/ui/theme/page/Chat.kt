@@ -38,36 +38,7 @@ fun Chat(navctl: NavHostController) {
         bottomBar = {
             Bottombarnav(navctl)
         },
-        topBar = {
 
-            TopAppBar(
-
-                title = { Text(
-                    "Message",
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.inverseOnSurface,
-                    fontSize = 25.sp
-                )  },
-                actions = {
-//                    dropmenu()
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Column(
-                            modifier = Modifier.padding(10.0.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Icon(imageVector = Icons.Default.Search, contentDescription = "", tint = MaterialTheme.colorScheme.inverseOnSurface)
-                            Text("Trouver", color = MaterialTheme.colorScheme.inverseOnSurface, fontWeight = FontWeight.SemiBold)
-                        }
-                    }
-                },
-                colors =  TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF00bf63),
-                    titleContentColor = MaterialTheme.colorScheme.inverseOnSurface,
-                    actionIconContentColor = MaterialTheme.colorScheme.inverseOnSurface
-                )
-
-            )
-        }
     ) {padding ->
         Column(
             modifier = Modifier.padding(padding)

@@ -454,7 +454,7 @@ fun Post(navctl: NavHostController) {
                     modifier = Modifier.width(100.dp),
                 ) {
                     androidx.compose.material.Text(
-                        "Anuller",
+                        "Annuler",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = couleurprincipal.copy(0.5f)
@@ -507,7 +507,7 @@ fun post(
         auteur = auteur,
         date = date,
         like = 0,
-        comment = emptyMap(),
+        comment = emptyList(),
         uid = FirebaseAuth.getInstance().currentUser?.uid!!,
         couleurtext = couleurtext,
         couleurbackground = couleurbackground,

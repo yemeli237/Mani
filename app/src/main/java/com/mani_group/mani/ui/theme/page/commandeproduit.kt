@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -20,16 +21,18 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.IconButton
 import androidx.compose.material.TextButton
-import androidx.compose.material.TextField
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.AddLocation
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.DeliveryDining
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.RemoveCircleOutline
 import androidx.compose.material.icons.filled.ToggleOff
 import androidx.compose.material.icons.filled.ToggleOn
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -44,11 +47,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -62,10 +63,14 @@ import com.mani_group.mani.data.couleurprincipal
 import com.mani_group.mani.data.medmodl
 
 @Composable
-fun CommandProduit(navctl: NavHostController, produit: String?) {
+fun CommandProduit(
+    navctl: NavHostController,
+    produit: String?
+) {
     var produits by remember {
         mutableStateOf(medmodl())
     }
+//    var produit = "bWxmxghowjWqWGYR6vQz"
     var quantite by remember {
         mutableStateOf(1)
     }
@@ -127,6 +132,38 @@ fun CommandProduit(navctl: NavHostController, produit: String?) {
     }
 
     Scaffold(
+        floatingActionButton = {
+            Column {
+                androidx.compose.material3.IconButton(
+                    onClick = {
+//                    openmenu = true
+                    },
+                    modifier = Modifier.size(50.dp),
+                    colors = IconButtonDefaults.iconButtonColors(containerColor = couleurprincipal, contentColor = Color.White)
+                ) {
+                    androidx.compose.material3.Icon(
+                        imageVector = Icons.Filled.AddLocation,
+                        contentDescription = "Action button",
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                androidx.compose.material3.IconButton(
+                    enabled = addfeed,
+                    onClick = {
+//                    openmenu = true
+                        GlobalNav.navctl.navigate(Route.ItineraireLivraison)
+                    },
+                    modifier = Modifier.size(50.dp),
+                    colors = IconButtonDefaults.iconButtonColors(containerColor = couleurprincipal, contentColor = Color.White)
+                ) {
+                    androidx.compose.material3.Icon(
+                        imageVector = Icons.Filled.DeliveryDining,
+                        contentDescription = "Action button",
+                    )
+                }
+            }
+        },
         topBar = {
             TopAppBar(
 //                contentColor = couleurprincipal,
@@ -143,6 +180,7 @@ fun CommandProduit(navctl: NavHostController, produit: String?) {
                 },
 
                 )
+
         }
     ) {padding->
 
@@ -215,7 +253,7 @@ fun CommandProduit(navctl: NavHostController, produit: String?) {
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -239,9 +277,9 @@ fun CommandProduit(navctl: NavHostController, produit: String?) {
             }
             Spacer(modifier = Modifier.height(8.dp))
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceAround
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text("Net a payer : ${somme+frais}XAF", fontWeight = FontWeight.Bold)
                 Text("Livraison : ${frais}XAF", fontWeight = FontWeight.Bold)
@@ -255,11 +293,11 @@ fun CommandProduit(navctl: NavHostController, produit: String?) {
                 Text("Livraison ?", fontWeight = FontWeight.Bold)
                 if(addfeed){
                     IconButton(onClick = {addfeed = false; frais = if(frais > 500) frais - 500 else 0}) {
-                        Icon(imageVector = Icons.Default.ToggleOn, contentDescription = "ajourter les frais de livraison", tint = couleurprincipal)
+                        Icon(imageVector = Icons.Default.ToggleOn, contentDescription = "ajourter les frais de livraison", tint = couleurprincipal, modifier = Modifier.size(50.dp))
                     }
                 }else{
                     IconButton(onClick = {addfeed = true; frais = if (frais == 0) 0 + 500 else 0}) {
-                        Icon(imageVector = Icons.Default.ToggleOff, contentDescription = "retirer les frais de livraison", tint = Color.Red)
+                        Icon(imageVector = Icons.Default.ToggleOff, contentDescription = "retirer les frais de livraison", tint = Color.Red,modifier = Modifier.size(50.dp))
                     }
                 }
             }

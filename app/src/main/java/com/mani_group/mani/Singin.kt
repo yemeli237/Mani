@@ -201,6 +201,7 @@ fun Singin(
             enabled = !isloading,
             onClick = {
                 isloading = true
+                adress = adress.replace("\\s".toRegex(), "")
                 AuthViewModesl.Singin(
                     adress, pass, name, img, genre, numero, opperateurbanque,
                     contact,

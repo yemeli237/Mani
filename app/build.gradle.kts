@@ -217,6 +217,10 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:2.3.7")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.7")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
+//    implementation("org.maplibre.gl:android-sdk:10.0.0")
+    implementation("org.osmdroid:osmdroid-android:6.1.16")
+    implementation("org.osmdroid:osmdroid-wms:6.1.16") // si tu veux du WMS
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 
 
 

@@ -10,9 +10,10 @@ data class postdata(
     val auteur: String = "",
     val date: String = "",
     val like: Int = 0,
-    val comment: Map<String, String> = emptyMap(),
+    val comment: List<String> = emptyList(),
     val uid: String = "",
     val couleurtext : String = "${couleurprincipal}",
     val couleurbackground : String = "${Color.White}",
     val id : String = "",
-)
+
+    )

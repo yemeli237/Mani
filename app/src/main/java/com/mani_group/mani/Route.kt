@@ -27,4 +27,7 @@ object Route {
     val ChatBot = "ChatBot"
     val CommandProduit = "CommandProduit"
     val Commentaire = "Commentaire"
+    val AddEts = "AddEts"
+    val GeoLocalisation = "GeoLocalisation"
+    val ItineraireLivraison = "ItineraireLivraison"
 }

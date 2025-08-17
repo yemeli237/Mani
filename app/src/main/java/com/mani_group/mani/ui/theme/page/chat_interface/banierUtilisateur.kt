@@ -47,6 +47,7 @@ import com.mani_group.mani.GlobalNav
 import com.mani_group.mani.Route
 import com.mani_group.mani.data.ConversationPreview
 import com.mani_group.mani.data.Utilisateur
+import com.mani_group.mani.data.couleurprincipal
 
 @Composable
 fun BanierUtilisateur(){
@@ -105,7 +106,7 @@ fun BanierUtilisateur(){
 
 
    if(listUtilisateur.value.isEmpty()){
-       LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+       LinearProgressIndicator(modifier = Modifier.fillMaxWidth(),color = couleurprincipal,)
    }else{
        LazyRow(modifier = Modifier.padding(10.dp)) {
            items(listUtilisateur.value){item->

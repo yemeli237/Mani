@@ -86,7 +86,7 @@ fun produitMedicament(modifier: Modifier = Modifier.padding(16.dp, 0.dp)){
 
 
     if(medproduitlist.value.isEmpty()){
-        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        LinearProgressIndicator(modifier = Modifier.fillMaxWidth(),color = couleurprincipal,)
     }else{
         LazyColumn(
             modifier = Modifier.fillMaxSize()

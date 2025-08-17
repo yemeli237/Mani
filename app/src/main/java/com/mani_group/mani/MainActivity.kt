@@ -2,6 +2,7 @@ package com.mani_group.mani
 
 import android.os.Build
 import android.os.Bundle
+import android.preference.PreferenceManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.mani_group.mani.ui.theme.page.Actus
+import com.mani_group.mani.ui.theme.page.AddEts
 import com.mani_group.mani.ui.theme.page.Aide
 import com.mani_group.mani.ui.theme.page.CategoriParProduit
 import com.mani_group.mani.ui.theme.page.Chat
@@ -31,19 +33,23 @@ import com.mani_group.mani.ui.theme.page.UtilisateurInfo
 import com.mani_group.mani.ui.theme.page.chat_interface.Commentaire
 import com.mani_group.mani.ui.theme.page.chat_interface.Conversation
 import com.mani_group.mani.ui.theme.page.chat_interface.LoadConversation
+import com.mani_group.mani.ui.theme.page.geoloc.GeoLocalisation
+import com.mani_group.mani.ui.theme.page.geoloc.ItineraireLivraison
 import com.mani_group.mani.ui.theme.page.maniai.ChatBot
+import org.osmdroid.config.Configuration
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Configuration.getInstance().load(applicationContext, PreferenceManager.getDefaultSharedPreferences(applicationContext))
         enableEdgeToEdge()
         setContent {
             val isConnected = Firebase.auth.currentUser != null
             val firepage = if (isConnected) Route.Home else Route.Choixconnexion
-        val navctl = rememberNavController()
+            val navctl = rememberNavController()
             GlobalNav.navctl = navctl
-            NavHost(navController = navctl, startDestination = Route.Actus, builder = {
+            NavHost(navController = navctl, startDestination = firepage, builder = {
                 composable(Route.Login){
                     Login(navctl)
                 }
@@ -124,9 +130,24 @@ class MainActivity : ComponentActivity() {
                     val produit = it.arguments?.getString("idproduit")
                     CommandProduit(navctl, produit )
                 }
+//                composable(Route.CommandProduit){
+//                    CommandProduit(navctl)
+//                }
                 composable("${Route.Commentaire}/{id}"){
                     val post = it.arguments?.getString("id")
                     Commentaire(post)
+                }
+//                composable(Route.Commentaire){
+//                    Commentaire()
+//                }
+                composable(Route.AddEts){
+                    AddEts()
+                }
+                composable(Route.GeoLocalisation){
+                    GeoLocalisation()
+                }
+                composable(Route.ItineraireLivraison){
+                    ItineraireLivraison()
                 }
 
 
