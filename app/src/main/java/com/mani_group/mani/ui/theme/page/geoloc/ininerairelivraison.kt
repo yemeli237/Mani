@@ -122,6 +122,13 @@ fun ItineraireLivraison(viewModel: MapViewModel = viewModel()){
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        Text("Mode", )
+                        Text(viewModel.modes,)
+                    }
+
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         Text("Duree", )
                         Text("${viewModel.duree}min", )
                     }

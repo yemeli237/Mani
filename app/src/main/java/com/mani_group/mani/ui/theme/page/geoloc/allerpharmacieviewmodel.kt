@@ -1,6 +1,7 @@
 package com.mani_group.mani.ui.theme.page.geoloc
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.drawable.BitmapDrawable
 import android.preference.PreferenceManager
@@ -37,8 +38,7 @@ import org.osmdroid.views.overlay.Polyline
 import java.net.HttpURLConnection
 import java.net.URL
 
-
-class MapViewModel : ViewModel() {
+class AllerpharmacieViewModel: ViewModel() {
 
     var distanceKm by mutableStateOf(0.0)
         private set
@@ -50,6 +50,23 @@ class MapViewModel : ViewModel() {
         private set
     var modes by mutableStateOf("")
         private set
+
+    var longpharmacie by mutableStateOf(11.5021)
+    var latpharmacie by mutableStateOf(3.8480)
+    val transportModes = listOf(
+        "driving-car",         // 🚗 Voiture
+        "driving-hgv",         // 🚚 Camion
+        "foot-walking",        // 🚶‍♂️ Marche
+        "foot-running",        // 🏃‍♂️ Course à pied
+        "cycling-regular",     // 🚲 Vélo classique
+        "cycling-road",        // 🚲 Vélo de route
+        "cycling-mountain",    // 🚲 VTT
+        "cycling-electric",    // ⚡ Vélo électrique
+        "wheelchair"           // ♿ Fauteuil roulant
+    )
+    var mode by mutableStateOf("driving-car")
+
+
 
     //code du formatage des donner de tracage
     fun decodePolylineIti(polyline: String, ): List<GeoPoint> {
@@ -90,18 +107,7 @@ class MapViewModel : ViewModel() {
         start: GeoPoint,
         end: GeoPoint,
         apiKey: String): List<GeoPoint> = withContext(Dispatchers.IO) {
-        val transportModes = listOf(
-            "driving-car",         // 🚗 Voiture
-            "driving-hgv",         // 🚚 Camion
-            "foot-walking",        // 🚶‍♂️ Marche
-            "foot-running",        // 🏃‍♂️ Course à pied
-            "cycling-regular",     // 🚲 Vélo classique
-            "cycling-road",        // 🚲 Vélo de route
-            "cycling-mountain",    // 🚲 VTT
-            "cycling-electric",    // ⚡ Vélo électrique
-            "wheelchair"           // ♿ Fauteuil roulant
-        )
-        val mode = transportModes.random()
+
         modes = mode
         val url = URL("https://api.openrouteservice.org/v2/directions/$mode")
         val body = """
@@ -176,6 +182,19 @@ class MapViewModel : ViewModel() {
         val fusedLocationClient = remember {
             LocationServices.getFusedLocationProviderClient(context)
         }
+        // Marqueur personnalisé
+        val originalDrawable = ResourcesCompat.getDrawable(context.resources, R.drawable.localisation, null)
+        val originalBitmap = (originalDrawable as BitmapDrawable).bitmap
+        val resizedBitmap = originalBitmap.scale(24, 24)
+        val resizedDrawable = resizedBitmap.toDrawable(context.resources)
+
+        val originalDrawable1 = ResourcesCompat.getDrawable(context.resources, R.drawable.localperson, null)
+        val originalBitmap1 = (originalDrawable1 as BitmapDrawable).bitmap
+        val resizedBitmap1 = originalBitmap1.scale(24, 24)
+        val resizedDrawable1 = resizedBitmap1.toDrawable(context.resources)
+        val store = context.getSharedPreferences("localisation", Context.MODE_PRIVATE)
+        latpharmacie = store.getFloat("lat",3.8480.toFloat()).toDouble()
+        longpharmacie = store.getFloat("long", 11.5021.toFloat()).toDouble()
         // Tracer l’itinéraire
         if (permissionGranted) {
             try {
@@ -183,7 +202,7 @@ class MapViewModel : ViewModel() {
                     .addOnSuccessListener { location ->
                         if (location != null) {
                             val start = GeoPoint(location.latitude, location.longitude)
-                            val end = GeoPoint(3.8480, 11.5021)
+                            val end = GeoPoint(latpharmacie, longpharmacie)
 
                             CoroutineScope(Dispatchers.IO).launch {
                                 try {
@@ -201,11 +220,12 @@ class MapViewModel : ViewModel() {
                                         val startM = Marker(mapView).apply {
                                             position = start
                                             title = "Départ"
+                                            icon = resizedDrawable1
                                         }
                                         val endM = Marker(mapView).apply {
                                             position = end
                                             title = "Arrivée"
-//                                        icon = resizedDrawable
+                                        icon = resizedDrawable
                                         }
 
                                         mapView.overlays.addAll(listOf(startM, endM))
@@ -264,5 +284,4 @@ class MapViewModel : ViewModel() {
 
         AndroidView(factory = { mapView }, modifier = Modifier.fillMaxSize())
     }
-
 }

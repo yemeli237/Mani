@@ -14,5 +14,6 @@ data class medmodl(
     val image : List<String> = emptyList(),
     val categorie : String = "",
     val autre : Map<String, String> = mapOf(),
-    val like : Int = 0
+    val like : Int = 0,
+    val idPharmacie: String = ""
 )

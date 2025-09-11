@@ -30,4 +30,5 @@ object Route {
     val AddEts = "AddEts"
     val GeoLocalisation = "GeoLocalisation"
     val ItineraireLivraison = "ItineraireLivraison"
+    val AllePharmacie = "AllePharmacie"
 }

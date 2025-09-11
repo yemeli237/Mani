@@ -38,6 +38,7 @@ import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -67,11 +68,16 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import com.mani_group.mani.GlobalNav
+import com.mani_group.mani.Route
 import com.mani_group.mani.data.couleurprincipal
 import com.mani_group.mani.data.etsmodel
+import com.mani_group.mani.ui.theme.page.geoloc.MapViewModel
+import com.mani_group.mani.ui.theme.page.geoloc.ajoutecoordone
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -90,9 +96,12 @@ import javax.crypto.spec.SecretKeySpec
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddEts(){
+fun AddEts(viewModel: ajoutecoordone = viewModel ()){
     var nomets by remember {
         mutableStateOf("")
+    }
+    var carte by remember {
+        mutableStateOf(false)
     }
     val estpost = remember {
         mutableStateOf<List<etsmodel>>(emptyList())
@@ -111,6 +120,9 @@ fun AddEts(){
     var localisation by  remember {
         mutableStateOf("")
     }
+    var longitute by remember { mutableStateOf(0.0) }
+    var latitude by remember { mutableStateOf(0.0) }
+
     var region by remember {
         mutableStateOf("")
     }
@@ -154,14 +166,28 @@ fun AddEts(){
     ) { uri: Uri? ->
         selectedImageUri = uri
     }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = {
-                        GlobalNav.navctl.popBackStack()
-                        /*TODO*/ }) {
-                        Icon(imageVector = Icons.Outlined.ArrowBack, contentDescription = "", tint = MaterialTheme.colorScheme.inverseOnSurface)
+                    if(carte){
+                        IconButton(onClick = {
+                            carte = false
+                            longitute = viewModel.longitude
+                            latitude = viewModel.latitude
+                            /*TODO*/ }) {
+                            Icon(imageVector = Icons.Outlined.Close, contentDescription = "", tint = MaterialTheme.colorScheme.inverseOnSurface)
+                        }
+                    }
+                    if(carte == false){
+
+                            IconButton(onClick = {
+                                GlobalNav.navctl.popBackStack()
+                                /*TODO*/ }) {
+                                Icon(imageVector = Icons.Outlined.ArrowBack, contentDescription = "", tint = MaterialTheme.colorScheme.inverseOnSurface)
+                            }
+
                     }
                 },
                 title = {
@@ -240,284 +266,298 @@ fun AddEts(){
                     CircularProgressIndicator()
                 }
             }else{
-                Column(
-                    modifier = Modifier.padding(8.dp).verticalScroll(rememberScrollState()),
+                if(carte){
+                    viewModel.OsmMapSimple()
+                }else{
+                    Column(
+                        modifier = Modifier.padding(8.dp).verticalScroll(rememberScrollState()),
 //                horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
-                    verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
-                ) {
-                    Text("Nom de l'etablissement", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
-                    OutlinedTextField(
-                        value = nomets, onValueChange = {nomets = it}, label = {
-                            Text("Ex: Pharmacie Weel +",fontWeight = FontWeight.Bold,)
-                        }, shape = RoundedCornerShape(10.dp), modifier = Modifier.fillMaxWidth(), colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = couleurprincipal,
-                            focusedBorderColor = couleurprincipal,
-                            unfocusedBorderColor = couleurprincipal
+                        verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
+                    ) {
+                        Text("Nom de l'etablissement", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
+                        OutlinedTextField(
+                            value = nomets, onValueChange = {nomets = it}, label = {
+                                Text("Ex: Pharmacie Weel +",fontWeight = FontWeight.Bold,)
+                            }, shape = RoundedCornerShape(10.dp), modifier = Modifier.fillMaxWidth(), colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = couleurprincipal,
+                                focusedBorderColor = couleurprincipal,
+                                unfocusedBorderColor = couleurprincipal
+                            )
                         )
-                    )
-                    Spacer( modifier = Modifier.height(8.dp))
+                        Spacer( modifier = Modifier.height(8.dp))
 
-                    Text("Localisation", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
-                    OutlinedTextField(
-                        value = localisation, onValueChange = {localisation = it}, label = {
-                            Text("Ex: Ron-point express descente acacia",fontWeight = FontWeight.Bold,)
-                        }, shape = RoundedCornerShape(10.dp), modifier = Modifier.fillMaxWidth(), colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = couleurprincipal,
-                            focusedBorderColor = couleurprincipal,
-                            unfocusedBorderColor = couleurprincipal
-                        )
-                    )
-                    Spacer( modifier = Modifier.height(8.dp))
-
-                    Text("Adress Mail", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
-                    OutlinedTextField(
-                        value = email, onValueChange = {email = it}, label = {
-                            Text("Ex: Mani@gmail.com",fontWeight = FontWeight.Bold,)
-                        }, shape = RoundedCornerShape(10.dp), modifier = Modifier.fillMaxWidth(), colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = couleurprincipal,
-                            focusedBorderColor = couleurprincipal,
-                            unfocusedBorderColor = couleurprincipal
-                        )
-                    )
-                    Spacer( modifier = Modifier.height(8.dp))
-
-                    Text("Numero", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
-                    OutlinedTextField(
-                        value = tel, onValueChange = {tel = it}, label = {
-                            Text("Ex: +237 620303107",fontWeight = FontWeight.Bold,)
-                        }, shape = RoundedCornerShape(10.dp), modifier = Modifier.fillMaxWidth(), colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = couleurprincipal,
-                            focusedBorderColor = couleurprincipal,
-                            unfocusedBorderColor = couleurprincipal
-                        ),
-//                        keyboardOptions = KeyboardType.Number
-                    )
-                    Spacer( modifier = Modifier.height(8.dp))
-                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,) {
-                        Text("Ville", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
-                        IconButton(onClick = {expadville = true}) { Icon(imageVector = Icons.Default.Add, contentDescription = "Ajouter une ville")}
-                        Spacer(modifier = Modifier.weight(1f))
-                        Text(if(ville != "") ville else "Aucune ville selectionner")
-                    }
-                    Spacer( modifier = Modifier.height(8.dp))
-
-                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,) {
-                        Text("Region", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
-                        IconButton(onClick = {expadregion = true}) { Icon(imageVector = Icons.Default.Add, contentDescription = "Ajouter une ville")}
-                        Spacer(modifier = Modifier.weight(1f))
-                        Text(if(region != "") region else "Aucune region selectionner")
-                    }
-                    Spacer( modifier = Modifier.height(8.dp))
-
-                    TextButton(
-                        colors = ButtonDefaults.buttonColors(backgroundColor = couleurprincipal),
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {expad = true}
-                    ) { Text("Categorie : $categorie", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)}
-                    DropdownMenu(
-                        modifier = Modifier.background(color = couleurprincipal),
-                        expanded = expad,
-                        onDismissRequest = { expad = false },
-                        content = {
-                            DropdownMenuItem(onClick = {}, modifier = Modifier.fillMaxWidth()) {
-                                TextButton(
-                                    onClick = {
-                                        expad = false
-                                        categorie = "pharmacie"
-                                    },
-                                    modifier = Modifier.fillMaxWidth()) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text("Pharmacie",color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
-                                    }
-                                }
-                            }
-                            Divider(modifier = Modifier.fillMaxWidth())
-                            DropdownMenuItem(onClick = {}, modifier = Modifier.fillMaxWidth()) {
-                                TextButton(
-                                    onClick = {
-                                        expad = false
-                                        categorie = "Hopital de district"
-                                    },
-                                    modifier = Modifier.fillMaxWidth()) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text("Hopital de district",color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
-                                    }
-                                }
-                            }
-
-                            Divider(modifier = Modifier.fillMaxWidth())
-                            DropdownMenuItem(onClick = {}, modifier = Modifier.fillMaxWidth()) {
-                                TextButton(
-                                    onClick = {
-                                        expad = false
-                                        categorie = "Clinique"
-                                    },
-                                    modifier = Modifier.fillMaxWidth()) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text("Clinique",color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
-                                    }
-                                }
-                            }
-
-                            Divider(modifier = Modifier.fillMaxWidth())
-                            DropdownMenuItem(onClick = {}, modifier = Modifier.fillMaxWidth()) {
-                                TextButton(
-                                    onClick = {
-                                        expad = false
-                                        categorie = "Centre Hophtamologique"
-                                    },
-                                    modifier = Modifier.fillMaxWidth()) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text("Centre Hophtamologique",color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
-                                    }
-                                }
-                            }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Localisation : ", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
+                            TextButton(onClick = {
+                                carte=true
+                            }) { Text("Afficher sur la carte")}
                         }
-                    )
+                        OutlinedTextField(
+                            value = localisation, onValueChange = {localisation = it}, label = {
+                                Text("Ex: Ron-point express descente acacia",fontWeight = FontWeight.Bold,)
+                            }, shape = RoundedCornerShape(10.dp), modifier = Modifier.fillMaxWidth(), colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = couleurprincipal,
+                                focusedBorderColor = couleurprincipal,
+                                unfocusedBorderColor = couleurprincipal
+                            )
+                        )
+                        Spacer( modifier = Modifier.height(8.dp))
 
-                    //
-                    Spacer(modifier = Modifier.height(8.dp))
-                    TextButton(
-                        colors = ButtonDefaults.buttonColors(backgroundColor = couleurprincipal),
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            launcher.launch("image/*")
-                        }) {
-                        Text("Ajouter une image", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
+                        Text("Adress Mail", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
+                        OutlinedTextField(
+                            value = email, onValueChange = {email = it}, label = {
+                                Text("Ex: Mani@gmail.com",fontWeight = FontWeight.Bold,)
+                            }, shape = RoundedCornerShape(10.dp), modifier = Modifier.fillMaxWidth(), colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = couleurprincipal,
+                                focusedBorderColor = couleurprincipal,
+                                unfocusedBorderColor = couleurprincipal
+                            )
+                        )
+                        Spacer( modifier = Modifier.height(8.dp))
 
-                    selectedImageUri?.let { uri ->
-                        val context = LocalContext.current
-                        val inputStream = context.contentResolver.openInputStream(uri)
-                        val bitmap = BitmapFactory.decodeStream(inputStream)
-                        inputStream?.close() // Fermer le flux après lecture
+                        Text("Numero", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
+                        OutlinedTextField(
+                            value = tel, onValueChange = {tel = it}, label = {
+                                Text("Ex: +237 620303107",fontWeight = FontWeight.Bold,)
+                            }, shape = RoundedCornerShape(10.dp), modifier = Modifier.fillMaxWidth(), colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = couleurprincipal,
+                                focusedBorderColor = couleurprincipal,
+                                unfocusedBorderColor = couleurprincipal
+                            ),
+//                        keyboardOptions = KeyboardType.Number
+                        )
+                        Spacer( modifier = Modifier.height(8.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,) {
+                            Text("Ville", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
+                            IconButton(onClick = {expadville = true}) { Icon(imageVector = Icons.Default.Add, contentDescription = "Ajouter une ville")}
+                            Spacer(modifier = Modifier.weight(1f))
+                            Text(if(ville != "") ville else "Aucune ville selectionner")
+                        }
+                        Spacer( modifier = Modifier.height(8.dp))
 
-                        val exif = context.contentResolver.openInputStream(uri)?.let { ExifInterface(it) }
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,) {
+                            Text("Region", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
+                            IconButton(onClick = {expadregion = true}) { Icon(imageVector = Icons.Default.Add, contentDescription = "Ajouter une ville")}
+                            Spacer(modifier = Modifier.weight(1f))
+                            Text(if(region != "") region else "Aucune region selectionner")
+                        }
+                        Spacer( modifier = Modifier.height(8.dp))
+
+                        TextButton(
+                            colors = ButtonDefaults.buttonColors(backgroundColor = couleurprincipal),
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {expad = true}
+                        ) { Text("Categorie : $categorie", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)}
+                        DropdownMenu(
+                            modifier = Modifier.background(color = couleurprincipal),
+                            expanded = expad,
+                            onDismissRequest = { expad = false },
+                            content = {
+                                DropdownMenuItem(onClick = {}, modifier = Modifier.fillMaxWidth()) {
+                                    TextButton(
+                                        onClick = {
+                                            expad = false
+                                            categorie = "pharmacie"
+                                        },
+                                        modifier = Modifier.fillMaxWidth()) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text("Pharmacie",color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
+                                        }
+                                    }
+                                }
+                                Divider(modifier = Modifier.fillMaxWidth())
+                                DropdownMenuItem(onClick = {}, modifier = Modifier.fillMaxWidth()) {
+                                    TextButton(
+                                        onClick = {
+                                            expad = false
+                                            categorie = "Hopital de district"
+                                        },
+                                        modifier = Modifier.fillMaxWidth()) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text("Hopital de district",color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
+                                        }
+                                    }
+                                }
+
+                                Divider(modifier = Modifier.fillMaxWidth())
+                                DropdownMenuItem(onClick = {}, modifier = Modifier.fillMaxWidth()) {
+                                    TextButton(
+                                        onClick = {
+                                            expad = false
+                                            categorie = "Clinique"
+                                        },
+                                        modifier = Modifier.fillMaxWidth()) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text("Clinique",color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
+                                        }
+                                    }
+                                }
+
+                                Divider(modifier = Modifier.fillMaxWidth())
+                                DropdownMenuItem(onClick = {}, modifier = Modifier.fillMaxWidth()) {
+                                    TextButton(
+                                        onClick = {
+                                            expad = false
+                                            categorie = "Centre Hophtamologique"
+                                        },
+                                        modifier = Modifier.fillMaxWidth()) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text("Centre Hophtamologique",color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
+                                        }
+                                    }
+                                }
+                            }
+                        )
+
+                        //
+                        Spacer(modifier = Modifier.height(8.dp))
+                        TextButton(
+                            colors = ButtonDefaults.buttonColors(backgroundColor = couleurprincipal),
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                launcher.launch("image/*")
+                            }) {
+                            Text("Ajouter une image", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        selectedImageUri?.let { uri ->
+                            val context = LocalContext.current
+                            val inputStream = context.contentResolver.openInputStream(uri)
+                            val bitmap = BitmapFactory.decodeStream(inputStream)
+                            inputStream?.close() // Fermer le flux après lecture
+
+                            val exif = context.contentResolver.openInputStream(uri)?.let { ExifInterface(it) }
 //                    val orientation = exif?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL) ?: ExifInterface.ORIENTATION_NORMAL
 
 
-                        val orientation = exif?.getAttributeInt(
-                            ExifInterface.TAG_ORIENTATION,
-                            ExifInterface.ORIENTATION_NORMAL
-                        ) ?: ExifInterface.ORIENTATION_NORMAL
+                            val orientation = exif?.getAttributeInt(
+                                ExifInterface.TAG_ORIENTATION,
+                                ExifInterface.ORIENTATION_NORMAL
+                            ) ?: ExifInterface.ORIENTATION_NORMAL
 
-                        val matrix = Matrix().apply {
-                            when (orientation) {
-                                ExifInterface.ORIENTATION_ROTATE_90 -> postRotate(90f)
-                                ExifInterface.ORIENTATION_ROTATE_180 -> postRotate(180f)
-                                ExifInterface.ORIENTATION_ROTATE_270 -> postRotate(270f)
-                            }
-                        }
-
-
-                        val correctedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-
-                        val fill = correctedBitmap?.let { bitmapToFile(context, bitmap, fileName = "image.jpg")}
-
-                        image = fill
-                        Log.d("fichier", "$image")
-
-                        Card(
-
-                        ) {
-                            Image(
-                                bitmap = correctedBitmap.asImageBitmap(),
-                                contentDescription = null,
-                                modifier = Modifier.size(200.dp),
-                                contentScale = ContentScale.Crop
-                            )
-//                        img = bitmapToBase64(bitmap)
-                        }
-
-
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Ajouter une description", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
-                    Spacer(modifier = Modifier.height(10.dp))
-                    OutlinedTextField(value = description, onValueChange = {description = it},
-                        label = {
-                            Text("Aidez les autres a mieux connaitre la structure", fontSize = 20.sp, textAlign = TextAlign.Center)
-                        },
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(150.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = couleurprincipal,
-                            focusedBorderColor = couleurprincipal,
-                            unfocusedBorderColor = couleurprincipal
-                        ),
-                        textStyle = TextStyle(fontSize = 25.sp, fontFamily = FontFamily.SansSerif, fontWeight = FontWeight.SemiBold)
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Button(
-                        enabled = if(image == null || localisation =="" || ville == "" || region == "" || categorie == "" || description =="" || nomets =="") false else true,
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            isloading = true
-
-
-                            image?.let{
-                                uploadToCloudinary(it) { imageUrl ->
-                                    if (imageUrl != null) {
-                                        Log.d("Cloudinary", "Lien de l'image : $imageUrl")
-                                        val data  = etsmodel(
-                                            nom = nomets,
-                                            localisation = localisation,
-                                            ville = ville,
-                                            region = region,
-                                            categorie = categorie,
-                                            image = imageUrl,
-                                            description = description,
-                                            email = email,
-                                            telephone = tel,
-                                            garde = garde,
-                                            ouvert = ouvert
-                                        )
-
-                                        Firebase.firestore.collection("ets")
-                                            .add(data)
-                                            .addOnSuccessListener { doc->
-                                                isloading = false
-                                                val id = doc.id
-                                                Firebase.firestore.collection("ets")
-                                                    .document(id)
-                                                    .update("id", id)
-                                                    .addOnCompleteListener {
-                                                        if(it.isSuccessful){
-                                                            isloading = false
-                                                            Log.d("firebase", "Sauvegarder avec succes")
-                                                        }else { e: Exception ->
-                                                            isloading= false
-                                                            Log.d("firebase", "une erreur c'est produit $e")
-                                                        }
-                                                    }
-                                            }
-
-                                    } else {
-                                        isloading = false
-                                        Log.e("Cloudinary", "Échec de l'upload")
-                                        Log.d("Cloudinary", "Fichier : ${image?.absolutePath}, taille : ${image?.length()}")
-                                    }
+                            val matrix = Matrix().apply {
+                                when (orientation) {
+                                    ExifInterface.ORIENTATION_ROTATE_90 -> postRotate(90f)
+                                    ExifInterface.ORIENTATION_ROTATE_180 -> postRotate(180f)
+                                    ExifInterface.ORIENTATION_ROTATE_270 -> postRotate(270f)
                                 }
-                            }?: Log.e("Cloudinary", "Le fichier image est nul")
-                        }) {
-                        Text("Soumetre")
+                            }
+
+
+                            val correctedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+
+                            val fill = correctedBitmap?.let { bitmapToFile(context, bitmap, fileName = "image.jpg")}
+
+                            image = fill
+                            Log.d("fichier", "$image")
+
+                            Card(
+
+                            ) {
+                                Image(
+                                    bitmap = correctedBitmap.asImageBitmap(),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(200.dp),
+                                    contentScale = ContentScale.Crop
+                                )
+//                        img = bitmapToBase64(bitmap)
+                            }
+
+
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Ajouter une description", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
+                        Spacer(modifier = Modifier.height(10.dp))
+                        OutlinedTextField(value = description, onValueChange = {description = it},
+                            label = {
+                                Text("Aidez les autres a mieux connaitre la structure", fontSize = 20.sp, textAlign = TextAlign.Center)
+                            },
+                            shape = RoundedCornerShape(10.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(150.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = couleurprincipal,
+                                focusedBorderColor = couleurprincipal,
+                                unfocusedBorderColor = couleurprincipal
+                            ),
+                            textStyle = TextStyle(fontSize = 25.sp, fontFamily = FontFamily.SansSerif, fontWeight = FontWeight.SemiBold)
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(
+                            enabled = if(image == null || localisation =="" || ville == "" || region == "" || categorie == "" || description =="" || nomets =="") false else true,
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                isloading = true
+
+
+                                image?.let{
+                                    uploadToCloudinary(it) { imageUrl ->
+                                        if (imageUrl != null) {
+                                            Log.d("Cloudinary", "Lien de l'image : $imageUrl")
+                                            val data  = etsmodel(
+                                                nom = nomets,
+                                                localisation = localisation,
+                                                ville = ville,
+                                                region = region,
+                                                categorie = categorie,
+                                                image = imageUrl,
+                                                description = description,
+                                                email = email,
+                                                telephone = tel,
+                                                garde = garde,
+                                                ouvert = ouvert,
+                                                long = longitute,
+                                                lat = latitude
+                                            )
+
+                                            Firebase.firestore.collection("ets")
+                                                .add(data)
+                                                .addOnSuccessListener { doc->
+                                                    isloading = false
+                                                    val id = doc.id
+                                                    Firebase.firestore.collection("ets")
+                                                        .document(id)
+                                                        .update("id", id)
+                                                        .addOnCompleteListener {
+                                                            if(it.isSuccessful){
+                                                                isloading = false
+                                                                Log.d("firebase", "Sauvegarder avec succes")
+                                                            }else { e: Exception ->
+                                                                isloading= false
+                                                                Log.d("firebase", "une erreur c'est produit $e")
+                                                            }
+                                                        }
+                                                }
+
+                                        } else {
+                                            isloading = false
+                                            Log.e("Cloudinary", "Échec de l'upload")
+                                            Log.d("Cloudinary", "Fichier : ${image?.absolutePath}, taille : ${image?.length()}")
+                                        }
+                                    }
+                                }?: Log.e("Cloudinary", "Le fichier image est nul")
+                            }) {
+                            Text("Soumetre")
+                        }
                     }
                 }
             }

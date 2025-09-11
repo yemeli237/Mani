@@ -33,6 +33,7 @@ import com.mani_group.mani.ui.theme.page.UtilisateurInfo
 import com.mani_group.mani.ui.theme.page.chat_interface.Commentaire
 import com.mani_group.mani.ui.theme.page.chat_interface.Conversation
 import com.mani_group.mani.ui.theme.page.chat_interface.LoadConversation
+import com.mani_group.mani.ui.theme.page.geoloc.AllePharmacie
 import com.mani_group.mani.ui.theme.page.geoloc.GeoLocalisation
 import com.mani_group.mani.ui.theme.page.geoloc.ItineraireLivraison
 import com.mani_group.mani.ui.theme.page.maniai.ChatBot
@@ -148,6 +149,9 @@ class MainActivity : ComponentActivity() {
                 }
                 composable(Route.ItineraireLivraison){
                     ItineraireLivraison()
+                }
+                composable(Route.AllePharmacie){
+                    AllePharmacie()
                 }
 
 

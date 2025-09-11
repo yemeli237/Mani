@@ -1,5 +1,7 @@
 package com.mani_group.mani.ui.theme.page
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,6 +21,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.IconButton
 import androidx.compose.material.TextButton
 import androidx.compose.material.TopAppBar
@@ -26,13 +30,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.AddLocation
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.DeliveryDining
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.RemoveCircleOutline
 import androidx.compose.material.icons.filled.ToggleOff
 import androidx.compose.material.icons.filled.ToggleOn
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -47,11 +54,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.Firebase
@@ -60,12 +69,17 @@ import com.google.firebase.firestore.firestore
 import com.mani_group.mani.GlobalNav
 import com.mani_group.mani.Route
 import com.mani_group.mani.data.couleurprincipal
+import com.mani_group.mani.data.etsmodel
 import com.mani_group.mani.data.medmodl
+import com.mani_group.mani.ui.theme.page.geoloc.AllerpharmacieViewModel
 
+@SuppressLint("CommitPrefEdits")
 @Composable
 fun CommandProduit(
+
     navctl: NavHostController,
-    produit: String?
+    produit: String?,
+    viewModel: AllerpharmacieViewModel = viewModel(),
 ) {
     var produits by remember {
         mutableStateOf(medmodl())
@@ -98,6 +112,14 @@ fun CommandProduit(
         mutableStateOf("")
     }
     var userlikelist = remember { mutableStateOf<List<String>>(emptyList()) }
+    var openallert by remember {
+        mutableStateOf(false)
+    }
+    var oprendromemodemenu by remember {
+        mutableStateOf(false)
+    }
+    val context = LocalContext.current
+    val store = context.getSharedPreferences("localisation", Context.MODE_PRIVATE)
 
     LaunchedEffect(Unit) {
         try {
@@ -130,6 +152,32 @@ fun CommandProduit(
                 }
             }
     }
+    LaunchedEffect(Unit) {
+        try {
+            Firebase.firestore.collection("ets")
+                .document(produits.idPharmacie)
+                .get()
+                .addOnSuccessListener { document ->
+                    val ets = document.toObject(etsmodel::class.java)
+                    if (ets != null) {
+                        viewModel.latpharmacie = ets.lat
+                        viewModel.longpharmacie = ets.long
+                        store.edit().putLong("long", ets.long.toLong()).apply()
+                        store.edit().putLong("lat", ets.lat.toLong()).apply()
+                        store.edit().putString("nom", produits.pharmacie).apply()
+                    } else {
+
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("Firestore", "Erreur de chargement : ${e.message}")
+                }
+        }catch (e: Exception){
+            Log.e("Firestore", "Erreur de chargement : ${e.message}")
+        }
+
+    }
+    Log.d("Store", "donnes stocke${store.getString("nom", "")}, nom pharmacie : ${produits.pharmacie}")
 
     Scaffold(
         floatingActionButton = {
@@ -137,6 +185,7 @@ fun CommandProduit(
                 androidx.compose.material3.IconButton(
                     onClick = {
 //                    openmenu = true
+                        openallert = true
                     },
                     modifier = Modifier.size(50.dp),
                     colors = IconButtonDefaults.iconButtonColors(containerColor = couleurprincipal, contentColor = Color.White)
@@ -375,6 +424,58 @@ fun CommandProduit(
                     Text("Voire les information")
                 }
             }
+
+
+        }
+        if(openallert){
+            AlertDialog(
+                onDismissRequest = {
+                    openallert = false
+                },
+                confirmButton = {
+                    OutlinedButton(
+                        onClick = {oprendromemodemenu = true},
+                        shape = RoundedCornerShape(10.dp),) {
+                        Text("Mode", color = couleurprincipal)
+                        Icon(imageVector = Icons.Default.ArrowForwardIos, contentDescription = "", tint = couleurprincipal)
+                    }
+                    DropdownMenu(expanded = oprendromemodemenu, onDismissRequest = {
+                        openallert = false
+                    }) {
+                        for (item in viewModel.transportModes){
+                            DropdownMenuItem(onClick = {
+                                oprendromemodemenu=false
+                                viewModel.mode = item
+                                store.edit().putString("mode", item).apply()
+                                GlobalNav.navctl.navigate(Route.AllePharmacie)
+                            }) {
+                                Text(item,color = couleurprincipal.copy(0.5f))
+                            }
+                        }
+                    }
+                },
+                title = {
+                    androidx.compose.material.Text("Anonce", textAlign = TextAlign.Center)
+                },
+                dismissButton = {
+                    androidx.compose.material3.OutlinedButton (
+                        onClick = {
+                            openallert = false
+                        },
+                        shape = RoundedCornerShape(10.dp),
+                    ) {
+                        androidx.compose.material.Text(
+                            "Annuler",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = couleurprincipal.copy(0.5f)
+                        )
+                    }
+                },
+                text = {
+                    androidx.compose.material.Text("Quel est votre mode de transport")
+                }
+            )
 
 
         }

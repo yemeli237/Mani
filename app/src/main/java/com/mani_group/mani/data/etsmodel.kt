@@ -13,4 +13,6 @@ data class etsmodel(
     val telephone : String = "",
     val garde : Boolean = false,
     val ouvert : Boolean = false,
+    val long : Double = 0.0,
+    val lat : Double = 0.0,
 )

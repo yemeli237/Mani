@@ -165,6 +165,7 @@ fun decodePolyline(polyline: String,): List<GeoPoint> {
 
 
 
+//tracage d'itineraire de parcour
 suspend fun fetchRoute(
     start: GeoPoint,
     end: GeoPoint,
